@@ -1,0 +1,32 @@
+📂 ServerHome
+├── 📝 InContent.txt
+├── 📝 README.md
+├── 📂 releases/
+│   ├── 📄 v1.0.0.tar.gz
+│   └── 📄 v1.1.0.tar.gz
+├── 📂 server-helb/
+│   ├── 📄 fetch-page.sh
+│   ├── 📄 setup-apache2-site.sh
+│   ├── 📄 setup-nginx-site.sh
+│   └── 📄 wg-config.sh
+├── 📂 server-management/
+│   ├── 📄 backup.sh
+│   ├── 📄 monitor-health.sh
+│   ├── 📄 ping_test.sh
+│   └── 📄 rotate-logs.sh
+├── 📂 utilities/
+│   ├── 📄 cleanup-temp.sh
+│   ├── 📄 generate-ssl.sh
+│   └── 📄 user-report.sh
+└── 📂 webapp-install/
+    ├── 📄 install-drupal.sh
+    ├── 📄 install-ghost.sh
+    ├── 📄 install-wordpress.sh
+    └── 📄 nginx-configure.sh
+
+=== Datei-Inhalte ===
+
+📝 --- InContent.txt ---
+
+📝 --- README.md ---
+
