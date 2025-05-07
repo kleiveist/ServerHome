@@ -1,30 +1,3 @@
-📂 ServerHome
-├── 📝 InContent.txt
-├── 📝 README.md
-├── 📂 server-helb/
-│   └── 📄 help_page.sh
-├── 📂 server-management/
-│   ├── 📝 install.txt
-│   └── 🐍 ping_test.py
-├── 📂 utilities/
-└── 📂 webapp-install/
-
-=== Datei-Inhalte ===
-
-📝 --- InContent.txt ---
-
-📝 --- README.md ---
-
-📝 --- server-management\install.txt ---
-------------------------------------------------
-////////////// Skript Anlegen /////////////////     jy8TqyBAPaIRJw3pR0geeXHASKs1Yhey
-------------------------------------------------
-sudo nano /usr/local/bin/insta.sh
-sudo chmod +x /usr/local/bin/insta.sh
-sudo /usr/local/bin/insta.sh
-------------------------------------------------
-insta.sh
-------------------------------------------------
 #!/bin/bash
 
 LOG_FILE="/var/log/installation_script.log"
@@ -38,7 +11,7 @@ echo "💾 /var/log/installation_script.log erstellt"
 SERVER_IP="192.168.178.115"
 CURRENT_IP=$(hostname -I | awk '{print $1}')
 if [ "$CURRENT_IP" != "$SERVER_IP" ]; then
-  log_message "🚫 Dieses Installationsskript darf nur auf dem Server mit der IP $SERVER_IP ausgeführt werden. Aktuelle IP: $CURRENT_IP" 
+  log_message "🚫 Dieses Installationsskript darf nur auf dem Server mit der IP $SERVER_IP ausgeführt werden. Aktuelle IP: $CURRENT_IP"
   exit 1
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
@@ -77,11 +50,11 @@ SCRIPT_PATH3="/usr/local/bin/upgrade.sh"
 SCRIPT_PATH4="/usr/local/bin/update_hosts.py"
 SCRIPT_PATH5="/usr/local/bin/ping_test.py"
 SCRIPT_PATH6="/usr/local/bin/cat_hosts.sh"
-SCRIPT_PATH7="/usr/local/bin/book.sh"
-SCRIPT_PATH8="/usr/local/bin/ssh.sh"
-SCRIPT_PATH9="/usr/local/bin/apache2.sh"
-SCRIPT_PATH10="/usr/local/bin/update_app.sh"
-SCRIPT_PATH11="/usr/local/bin/check_urls.sh"
+SCRIPT_PATH7="/usr/local/bin/check_urls.sh"
+SCRIPT_PATH8="/usr/local/bin/08.sh"
+SCRIPT_PATH9="/usr/local/bin/09.sh"
+SCRIPT_PATH10="/usr/local/bin/10.sh"
+SCRIPT_PATH11="/usr/local/bin/11.sh"
 #+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+
 # 🔄 Dynamische Umwandlung in ein Array, ungültige Pfade ignorieren
 SCRIPT_PATHS=()
@@ -139,40 +112,40 @@ if check_file_exists "$SCRIPT_PATH2"; then
 function navigate_pages() {
     current_page=1
     total_pages=11
-    
+
     while true; do
         clear
 
         # Anzeige der Anweisung oben
         display_navigation_instructions
 
-        if [ "$current_page" -eq 1 ]; then 
+        if [ "$current_page" -eq 1 ]; then
             display_page_1
-        elif [ "$current_page" -eq 2 ]; then 
+        elif [ "$current_page" -eq 2 ]; then
             display_page_2
-        elif [ "$current_page" -eq 3 ]; then 
+        elif [ "$current_page" -eq 3 ]; then
             display_page_3
-        elif [ "$current_page" -eq 4 ]; then 
+        elif [ "$current_page" -eq 4 ]; then
             display_page_4
-        elif [ "$current_page" -eq 5 ]; then 
+        elif [ "$current_page" -eq 5 ]; then
             display_page_5
-        elif [ "$current_page" -eq 6 ]; then 
+        elif [ "$current_page" -eq 6 ]; then
             display_page_6
-        elif [ "$current_page" -eq 7 ]; then 
+        elif [ "$current_page" -eq 7 ]; then
             display_page_7
-        elif [ "$current_page" -eq 8 ]; then 
+        elif [ "$current_page" -eq 8 ]; then
             display_page_8
-        elif [ "$current_page" -eq 9 ]; then 
+        elif [ "$current_page" -eq 9 ]; then
             display_page_9
-       elif [ "$current_page" -eq 10 ]; then 
+       elif [ "$current_page" -eq 10 ]; then
            display_page_10
-       elif [ "$current_page" -eq 11 ]; then 
+       elif [ "$current_page" -eq 11 ]; then
            display_page_11
-       #elif [ "$current_page" -eq 12 ]; then 
+       #elif [ "$current_page" -eq 12 ]; then
        #    display_page_12
-       #elif [ "$current_page" -eq 13 ]; then 
+       #elif [ "$current_page" -eq 13 ]; then
        #    display_page_13
-       #elif [ "$current_page" -eq 14 ]; then 
+       #elif [ "$current_page" -eq 14 ]; then
        #    display_page_14
         fi
 
@@ -182,10 +155,10 @@ function navigate_pages() {
         read -rsn1 input
         case "$input" in
             "A") ;; # Pfeil nach oben - keine Aktion
-            "B") 
-                echo "🚪 Das Skript wird beendet... Vielen Dank fürs Verwenden!" 
-                break 
-                ;; 
+            "B")
+                echo "🚪 Das Skript wird beendet... Vielen Dank fürs Verwenden!"
+                break
+                ;;
             "C") # Rechts
                 if [ "$current_page" -lt "$total_pages" ]; then
                     current_page=$((current_page + 1))
@@ -200,8 +173,8 @@ function navigate_pages() {
                 echo "🚪 Das Skript wird beendet... Vielen Dank fürs Verwenden!"
                 break
                 ;;
-            *) 
-                echo "⚠️  Pfeiltasten Links (←), Rechts (→) oder Runter (↓) verwenden." 
+            *)
+                echo "⚠️  Pfeiltasten Links (←), Rechts (→) oder Runter (↓) verwenden."
                 ;;
         esac
     done
@@ -749,7 +722,7 @@ check_packages() {
       missing_packages+=("$pkg")
     fi
   done
-  
+
   # 🔄 Installation fehlender Pakete
   sleep 2
   if [ ${#missing_packages[@]} -eq 0 ]; then
@@ -828,7 +801,7 @@ def update_hosts():
                 file.write(entry)
                 print(f"Eintrag hinzugefügt: {entry.strip()}")
         """
-        """     
+        """
         if not any("# 📼 ====== IP Network Server 2 ====== 📼" in line for line in lines):
             file.write("# 📼 ====== IP Network Server 2 ====== 📼\n")
         # Neue Einträge für IP3 und zugehörige Domains hinzufügen, wenn sie nicht existieren
@@ -945,245 +918,6 @@ if check_file_exists "$SCRIPT_PATH7"; then
   cat << 'EOF' | sudo tee "$SCRIPT_PATH7" > /dev/null
 #!/bin/bash
 
-# Skriptname
-SCRIPT_URL="https://codeberg.org/bookstack/devops/raw/branch/main/scripts/installation-ubuntu-24.04.sh"
-SCRIPT_NAME=$(basename "$SCRIPT_URL")
-# 💡 Eigentum der Domain - Hinweis
-sleep 1
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                        💡 HINWEIS                              ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ ┌────────────────────────────────────────────────────────────┐ ║"
-echo "║ │ ❗ Du musst die eingegebene Domain besitzen und sicherstellen,│ ║"
-echo "║ │    dass sie korrekt auf diesen Server zeigt.                │ ║"
-echo "║ │ ❗ Ohne gültige Konfiguration funktioniert die Installation  │ ║"
-echo "║ │    nicht.                                                   │ ║"
-echo "║ │ 💡 Alternativ kannst du die IP-Adresse des Servers verwenden. │ ║"
-echo "║ └────────────────────────────────────────────────────────────┘ ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-sleep 8
-# 🌐 Herunterladen des Skripts
-sleep 1
-echo "🌐 Lade das Installationsskript herunter: $SCRIPT_URL"
-wget "$SCRIPT_URL" || {
-  echo "❌ Fehler beim Herunterladen des Skripts."
-  exit 1
-}
-# 📂 Skript ausführbar machen
-sleep 1
-echo "🔧 Setze Berechtigungen, damit das Skript ausführbar ist."
-chmod a+x "$SCRIPT_NAME" || {
-  echo "❌ Fehler beim Setzen der Berechtigungen."
-  exit 1
-}
-# 🚀 Skript ausführen
-sleep 1
-echo "🚀 Führe das Installationsskript aus..."
-sudo "./$SCRIPT_NAME" || {
-  echo "❌ Fehler bei der Ausführung des Installationsskripts."
-  exit 1
-}
-# 🎉 Abschluss
-sleep 1
-echo "🎉 Installation erfolgreich abgeschlossen."
-EOF
-  process_script_creation "$SCRIPT_PATH7"
-  # 📝 SCRIPT_PATH7 wurde erfolgreich verarbeitet
-fi
-# 🔥 SCRIPT_PATH8 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH8 erstellen 🔥
-if check_file_exists "$SCRIPT_PATH8"; then
-  sleep 1
-  log_message "📄 Erstelle die Datei: $SCRIPT_PATH8"
-  cat << 'EOF' | sudo tee "$SCRIPT_PATH8" > /dev/null
-#!/bin/bash
-
-# Variablen anpassen
-LOGFILE="/var/log/ssl_renewal.log"
-KEY_PATH="/etc/ssl/private/books.key"
-CRT_PATH="/etc/ssl/certs/books.crt"
-COUNTRY="DE"
-STATE="NRW"
-LOCALITY="Düsseldorf"
-ORGANIZATION="blobbbite"
-ORG_UNIT="IT"
-COMMON_NAME="books.local"
-DAYS_VALID="183"  # Gültigkeitsdauer des Zertifikats
-RENEW_INTERVAL_HOURS=4372 # ca. 182,5 Tage in Stunden
-
-# Log-Funktion
-log() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a $LOGFILE
-}
-
-# Step 0: Alte Zertifikate löschen
-log "🗑️ Alte Zertifikate werden entfernt..."
-if [ -f "$KEY_PATH" ]; then
-    rm -f "$KEY_PATH"
-fi
-if [ -f "$CRT_PATH" ]; then
-    rm -f "$CRT_PATH"
-fi
-
-# Step 1: Neues Schlüssel-Zertifikat-Paar erzeugen
-log "🔐 Erstelle neues SSL-Zertifikat für $COMMON_NAME mit $DAYS_VALID Tagen Gültigkeit..."
-openssl req -x509 -nodes -days $DAYS_VALID -newkey rsa:2048 \
-  -keyout "$KEY_PATH" \
-  -out "$CRT_PATH" \
-  -subj "/C=$COUNTRY/ST=$STATE/L=$LOCALITY/O=$ORGANIZATION/OU=$ORG_UNIT/CN=$COMMON_NAME"
-
-# Step 2: Kontrolle, ob Schlüssel erstellt wurden
-if [ ! -f "$KEY_PATH" ] || [ ! -f "$CRT_PATH" ]; then
-    log "❌ Fehler: Schlüssel oder Zertifikat wurden nicht erstellt."
-    exit 1
-else
-    log "✅ Neues Zertifikat und Schlüssel erfolgreich erstellt."
-fi
-
-# Step 3: Schlüssel "einsperren" (Dateirechte anpassen)
-chmod 600 "$KEY_PATH"
-chmod 644 "$CRT_PATH"
-chown root:root "$KEY_PATH" "$CRT_PATH"
-log "✅ Dateirechte angepasst. Schlüssel ist nun eingeschränkt zugreifbar."
-
-# Step 5: Timer setzen (per at) für die nächste Erneuerung in 182,5 Tagen
-if command -v at >/dev/null 2>&1; then
-    echo "bash $0" | at now + $RENEW_INTERVAL_HOURS hours
-    if [ $? -eq 0 ]; then
-        log "✅ Neuer at-Job für die nächste Erneuerung in 182,5 Tagen gesetzt."
-    else
-        log "❌ Fehler beim Planen des at-Jobs."
-    fi
-else
-    log "❗ 'at' ist nicht installiert. Bitte manuell Cronjob oder Timer einrichten."
-fi
-
-# Step 6: Abschlussbericht
-log "📅 Zertifikat ist bis zu $DAYS_VALID Tage gültig. Nächste Erneuerung in 182,5 Tagen."
-EOF
-  process_script_creation "$SCRIPT_PATH8"
-  # 📝 SCRIPT_PATH8 wurde erfolgreich verarbeitet
-fi
-# 🔥 SCRIPT_PATH9 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH9 erstellen 🔥
-if check_file_exists "$SCRIPT_PATH9"; then
-  sleep 1
-  log_message "📄 Erstelle die Datei: $SCRIPT_PATH9"
-  cat << 'EOF' | sudo tee "$SCRIPT_PATH9" > /dev/null
-#!/bin/bash
- sudo rm /etc/apache2/sites-available/bookstack.conf
- 
- cat >/etc/apache2/sites-available/bookstack.conf <<EOL
-<VirtualHost *:80>
-    ServerName 192.168.178.115
-    ServerAlias books.local bookstack.local
-
-    RewriteEngine On
-    RewriteCond %{HTTPS} !=on
-    RewriteRule ^/?(.*) https://%{SERVER_NAME}/$1 [R=301,L]
-</VirtualHost>
-
-<VirtualHost *:443>
-    ServerName 192.168.178.115
-    ServerAlias books.local bookstack.local
-
-    ServerAdmin webmaster@localhost
-    DocumentRoot /var/www/bookstack/public/
-
-    SSLEngine on
-    SSLCertificateFile /etc/ssl/certs/books.crt
-    SSLCertificateKeyFile /etc/ssl/private/books.key
-
-    <Directory /var/www/bookstack/public/>
-        Options -Indexes +FollowSymLinks
-        AllowOverride None
-        Require all granted
-        <IfModule mod_rewrite.c>
-            <IfModule mod_negotiation.c>
-                Options -MultiViews -Indexes
-            </IfModule>
-
-            RewriteEngine On
-
-            # Handle Authorization Header
-            RewriteCond %{HTTP:Authorization} .
-            RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-
-            # Redirect Trailing Slashes If Not A Folder...
-            RewriteCond %{REQUEST_FILENAME} !-d
-            RewriteCond %{REQUEST_URI} (.+)/$
-            RewriteRule ^ %1 [L,R=301]
-
-            # Handle Front Controller...
-            RewriteCond %{REQUEST_FILENAME} !-d
-            RewriteCond %{REQUEST_FILENAME} !-f
-            RewriteRule ^ index.php [L]
-        </IfModule>
-    </Directory>
-
-    ErrorLog ${APACHE_LOG_DIR}/error.log
-    CustomLog ${APACHE_LOG_DIR}/access.log combined
-
-</VirtualHost>
-EOL
-  
-sudo a2ensite bookstack.conf
-sudo a2enmod ssl
-sudo apache2ctl configtest
-sudo systemctl restart apache2
-EOF
-  process_script_creation "$SCRIPT_PATH9"
-  # 📝 SCRIPT_PATH9 wurde erfolgreich verarbeitet
-fi
-# 🔥 SCRIPT_PATH10 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH10 erstellen 🔥
-if check_file_exists "$SCRIPT_PATH10"; then
-  sleep 1
-  log_message "📄 Erstelle die Datei: $SCRIPT_PATH10"
-  cat << 'EOF' | sudo tee "$SCRIPT_PATH10" > /dev/null
-#!/bin/bash
-
-# Pfad zur .env-Datei
-ENV_FILE="/var/www/bookstack/.env"
-
-# Prüfen, ob die Datei existiert
-if [ -f "$ENV_FILE" ]; then
-    echo "📂 Die Datei .env wurde gefunden. Ändere APP_URL..."
-    
-    # APP_URL aktualisieren
-    sed -i 's|APP_URL=http://192.168.178.115|APP_URL=https://192.168.178.115|g' "$ENV_FILE"
-    
-    # Überprüfen, ob die Änderung erfolgreich war
-    if grep -q "APP_URL=https://192.168.178.115" "$ENV_FILE"; then
-        echo "✅ APP_URL wurde erfolgreich aktualisiert."
-        
-        # Apache-Webserver neu starten
-        echo "🔄 Starte den Apache-Webserver neu..."
-        sudo systemctl restart apache2
-        
-        if [ $? -eq 0 ]; then
-            echo "✅ Apache-Webserver wurde erfolgreich neu gestartet."
-        else
-            echo "❌ Fehler: Apache-Webserver konnte nicht neu gestartet werden."
-            exit 1
-        fi
-    else
-        echo "❌ Fehler: APP_URL konnte nicht aktualisiert werden."
-        exit 1
-    fi
-else
-    echo "❌ Fehler: Die Datei .env wurde nicht gefunden unter $ENV_FILE."
-    exit 1
-fi
-EOF
-  process_script_creation "$SCRIPT_PATH10"
-  # 📝 SCRIPT_PATH10 wurde erfolgreich verarbeitet
-fi
-# 🔥 SCRIPT_PATH11 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH11 erstellen 🔥
-if check_file_exists "$SCRIPT_PATH11"; then
-  sleep 1
-  log_message "📄 Erstelle die Datei: $SCRIPT_PATH11"
-  cat << 'EOF' | sudo tee "$SCRIPT_PATH11" > /dev/null
-#!/bin/bash
-
 # Liste der zu prüfenden URLs
 URLS=(
     "http://192.168.178.115"
@@ -1205,6 +939,54 @@ echo "🔍 Überprüfe URLs..."
 for url in "${URLS[@]}"; do
     check_url "$url"
 done
+EOF
+  process_script_creation "$SCRIPT_PATH7"
+  # 📝 SCRIPT_PATH7 wurde erfolgreich verarbeitet
+fi
+# 🔥 SCRIPT_PATH8 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH8 erstellen 🔥
+if check_file_exists "$SCRIPT_PATH8"; then
+  sleep 1
+  log_message "📄 Erstelle die Datei: $SCRIPT_PATH8"
+  cat << 'EOF' | sudo tee "$SCRIPT_PATH8" > /dev/null
+# 🎉 Platzhalter
+sleep 1
+echo "🎉 Installation erfolgreich abgeschlossen."
+EOF
+  process_script_creation "$SCRIPT_PATH8"
+  # 📝 SCRIPT_PATH8 wurde erfolgreich verarbeitet
+fi
+# 🔥 SCRIPT_PATH9 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH9 erstellen 🔥
+if check_file_exists "$SCRIPT_PATH9"; then
+  sleep 1
+  log_message "📄 Erstelle die Datei: $SCRIPT_PATH9"
+  cat << 'EOF' | sudo tee "$SCRIPT_PATH9" > /dev/null
+# 🎉 Platzhalter
+sleep 1
+echo "🎉 Installation erfolgreich abgeschlossen."
+EOF
+  process_script_creation "$SCRIPT_PATH9"
+  # 📝 SCRIPT_PATH9 wurde erfolgreich verarbeitet
+fi
+# 🔥 SCRIPT_PATH10 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH10 erstellen 🔥
+if check_file_exists "$SCRIPT_PATH10"; then
+  sleep 1
+  log_message "📄 Erstelle die Datei: $SCRIPT_PATH10"
+  cat << 'EOF' | sudo tee "$SCRIPT_PATH10" > /dev/null
+# 🎉 Platzhalter
+sleep 1
+echo "🎉 Installation erfolgreich abgeschlossen."
+EOF
+  process_script_creation "$SCRIPT_PATH10"
+  # 📝 SCRIPT_PATH10 wurde erfolgreich verarbeitet
+fi
+# 🔥 SCRIPT_PATH11 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH11 erstellen 🔥
+if check_file_exists "$SCRIPT_PATH11"; then
+  sleep 1
+  log_message "📄 Erstelle die Datei: $SCRIPT_PATH11"
+  cat << 'EOF' | sudo tee "$SCRIPT_PATH11" > /dev/null
+# 🎉 Platzhalter
+sleep 1
+echo "🎉 Installation erfolgreich abgeschlossen."
 EOF
   process_script_creation "$SCRIPT_PATH11"
   # 📝 SCRIPT_PATH11 wurde erfolgreich verarbeitet
@@ -1312,75 +1094,6 @@ else
   log_message "ℹ️ Eintrag in .bashrc ist bereits vorhanden."
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
-
-# ⚙️ Führe book.sh aus | SCRIPT_PATH7="/usr/local/bin/book.sh"
-sleep 1
-log_message "🛠️ installation script bookstack"
-if [ -f "$SCRIPT_PATH7" ]; then
-    sleep 1
-    log_message "✅ book.sh gefunden. Starte Skript."
-    if sudo bash "$SCRIPT_PATH7" | tee -a /var/log/installation_script.log; then
-        log_message "🎉 book.sh erfolgreich ausgeführt."
-    else
-        log_message "❌ Fehler beim Ausführen von book.sh"
-        exit 1
-    fi
-else
-    log_message "❌ book.sh nicht gefunden."
-    exit 1
-fi
-#+----------------------------------------------------------------------------------------------------------------------------------+
-# ⚙️ Führe ssh.sh aus | SCRIPT_PATH8="/usr/local/bin/ssh.sh"
-sleep 1
-log_message "🛠️ Schlüssel-Zertifikat erzeugenk"
-if [ -f "$SCRIPT_PATH8" ]; then
-    sleep 1
-    log_message "✅ ssh.sh gefunden. Starte Skript."
-    if sudo bash "$SCRIPT_PATH8" | tee -a /var/log/installation_script.log; then
-        log_message "🎉 ssh.sh erfolgreich ausgeführt."
-    else
-        log_message "❌ Fehler beim Ausführen von ssh.sh"
-        exit 1
-    fi
-else
-    log_message "❌ ssh.sh nicht gefunden."
-    exit 1
-fi
-#+----------------------------------------------------------------------------------------------------------------------------------+
-# ⚙️ Führe apache2.sh aus | SCRIPT_PATH9="/usr/local/bin/apache2.sh"
-sleep 1
-log_message "🛠️ neuen HTPPS Apache-Konfigurationsdatei"
-if [ -f "$SCRIPT_PATH9" ]; then
-    sleep 1
-    log_message "✅ apache2.sh gefunden. Starte Skript."
-    if sudo bash "$SCRIPT_PATH9" | tee -a /var/log/installation_script.log; then
-        log_message "🎉 apache2.sh erfolgreich ausgeführt."
-    else
-        log_message "❌ Fehler beim Ausführen von apache2.sh"
-        exit 1
-    fi
-else
-    log_message "❌ apache2.sh nicht gefunden."
-    exit 1
-fi
-#+----------------------------------------------------------------------------------------------------------------------------------+
-# ⚙️ Führe apache2.sh aus | SCRIPT_PATH10="/usr/local/bin/update_app.sh"
-sleep 1
-log_message "🛠️ bookstack update_app auf HTPPS"
-if [ -f "$SCRIPT_PATH10" ]; then
-    sleep 1
-    log_message "✅ update_app.sh gefunden. Starte Skript."
-    if sudo bash "$SCRIPT_PATH10" | tee -a /var/log/installation_script.log; then
-        log_message "🎉 update_app.sh erfolgreich ausgeführt."
-    else
-        log_message "❌ Fehler beim Ausführen von update_app.sh"
-        exit 1
-    fi
-else
-    log_message "❌ update_app.sh nicht gefunden."
-    exit 1
-fi
-#+----------------------------------------------------------------------------------------------------------------------------------+
 # ⚙️ Führe check_urls.sh aus | SCRIPT_PATH11="/usr/local/bin/check_urls.sh"
 sleep 1
 log_message "🛠️ Überprüfe URLs"
@@ -1402,73 +1115,3 @@ fi
 log_message "🔄 Starte das System neu."
 sleep 5
 sudo reboot
-
-🐍 --- server-management\ping_test.py ---
-#!/usr/bin/env python3
-
-import subprocess
-import time
-from datetime import datetime
-
-# Serverliste
-HOSTS = {
-# =================IP====================
-    "1.1.1.1": "Cloudflare DNS",
-    "8.8.8.8": "Google DNS",
-#    "88.88.88.88": "ServerVPN",
-#    "88.88.88.1": "RouterHome",
-#    "88.88.88.4": "Pi-hole DNS",
-#    "88.88.88.5": "VPN Server",
-#    "88.88.88.88": "cloud-server",
-#    "88.88.88.88": "office server",
-# =================Domain====================
-    "domain123.com": "ServerVPN Domain",
-#    "cloud.local": "cloud-domain2",
-#    "nextcloud.local": "cloud-domain2",
-#    "office.local": "office-domain1",
-#    "onlyoffice.local": "office-domain2",
-#    "officeserver.local": "office-domain3",
-}
-
-def log(msg: str):
-    """Gibt msg mit Zeitstempel und 0,5 s Pause aus."""
-    ts = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-    print(f"[{ts}] {msg}")
-    time.sleep(0.5)
-
-def ping_host(host: str) -> bool:
-    try:
-        subprocess.run(
-            ["ping", "-c", "3", "-W", "2", host],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            check=True,
-        )
-        return True
-    except subprocess.CalledProcessError:
-        return False
-
-def main():
-    log("==== Ping-Test starten ====")
-    failed_hosts = []
-
-    for host, desc in HOSTS.items():
-        log(f"Pinge {host} ({desc})…")
-        if ping_host(host):
-            log(f"{host} ({desc}) ist erreichbar ✅")
-        else:
-            log(f"{host} ({desc}) ist nicht erreichbar ❌")
-            failed_hosts.append(f"{host} ({desc})")
-
-    log("==== Ping-Test abgeschlossen ====")
-    if failed_hosts:
-        log("==== Fehlgeschlagene Hosts ====")
-        for f in failed_hosts:
-            log(f)
-    else:
-        log("Alle Hosts sind erreichbar ✅")
-
-    input("==== [Enter], um das Skript zu beenden ====\n")
-
-if __name__ == "__main__":
-    main()
