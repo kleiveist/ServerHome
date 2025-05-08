@@ -69,24 +69,31 @@ for VAR in SCRIPT_PATH{1..11}; do
     fi
 done
 # ────────────────────────────────────────────────────────────────────────
-# ❓ Möchten Sie alle alten Skripte vor der Neuerstellung löschen? [y/N]
+# ❓ Alte Skripte nur löschen, wenn welche vorhanden sind
 # ────────────────────────────────────────────────────────────────────────
-read -rp "Alte Skripte löschen (y/n)? " answer
-case "${answer,,}" in
-  y|yes )
-    log_message "🗑️  Lösche alte Skripte..."
-    for VAR in SCRIPT_PATH{0..11}; do
-      FILE="${!VAR}"
-      if [ -n "$FILE" ] && [ -f "$FILE" ]; then
-        sudo rm -f "$FILE"
-        log_message "🗑️  Alte Datei gelöscht: $FILE"
-      fi
-    done
-    ;;
-  * )
-    log_message "ℹ️  Löschen alter Skripte übersprungen."
-    ;;
-esac
+# Sammle vorhandene Skript-Pfaddateien
+existing=()
+for VAR in SCRIPT_PATH{0..11}; do
+    FILE="${!VAR}"
+    [[ -n "$FILE" && -f "$FILE" ]] && existing+=("$FILE")
+done
+
+# Nur wenn mindestens eine Datei existiert, wird gefragt
+if (( ${#existing[@]} )); then
+    read -rp "Alte Skripte löschen? [y/N] " answer
+    case "${answer,,}" in
+      y|yes )
+        log_message "🗑️  Lösche alte Skripte..."
+        for FILE in "${existing[@]}"; do
+            sudo rm -f "$FILE" \
+              && log_message "🗑️  Gelöscht: $FILE"
+        done
+        ;;
+      * )
+        log_message "ℹ️  Löschen übersprungen."
+        ;;
+    esac
+fi
 #+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+
 # 🔥 Skript0 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - - - -+🔥 Skript0 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH0"; then
