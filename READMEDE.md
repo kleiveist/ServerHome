@@ -50,24 +50,25 @@ Dieses Repository enthält eine Sammlung von Server-Skripten und Hilfsprogrammen
 ---
 
 ## Installation
-
+---
 ### komplettblock
 ```bash
 sudo apt-get update
 sudo apt-get install -y curl
 sudo curl -fsSL \
-  https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-management/install.sh \
+  https://raw.githubusercontent.com/kleiveist/ServerHome/main/inst/install.sh \
   -o /usr/local/bin/install.sh \
 && sudo chmod +x /usr/local/bin/install.sh
 ```
-
+Führen Sie den folgenden Block aus, um das System zu aktualisieren, curl zu installieren, das Installationsskript herunterzuladen und ausführbar zu machen:
+---
 Führe einen der folgenden Befehle auf deinem Server aus:
 
 ### Mit `curl`
 
 ```bash
 sudo curl -fsSL \
-  https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-management/install.sh \
+  https://raw.githubusercontent.com/kleiveist/ServerHome/main/inst/install.sh \
   -o /usr/local/bin/install.sh \
 && sudo chmod +x /usr/local/bin/install.sh
 ```
@@ -76,7 +77,7 @@ sudo curl -fsSL \
 
 ```bash
 sudo wget -qO /usr/local/bin/install.sh \
-  https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-management/install.sh \
+  https://raw.githubusercontent.com/kleiveist/ServerHome/main/inst/install.sh \
 && sudo chmod +x /usr/local/bin/install.sh
 ```
 
