@@ -1,25 +1,24 @@
 # ServerHome
 
-## Table of Contents
+## Inhaltsverzeichnis
 
-1. [Introduction](#introduction)
-2. [Directory Structure](#directory-structure)
+1. [Einführung](#einführung)
+2. [Verzeichnisstruktur](#verzeichnisstruktur)
 3. [Installation](#installation)
-   - [Complete Block](#complete-block)
-   - [Using curl](#using-curl)
-   - [Using wget](#using-wget)
-4. [Usage](#usage)
-5. [License](#license)
+   - [Mit `curl`](#mit-curl)
+   - [Mit `wget`](#mit-wget)
+4. [Verwendung](#verwendung)
+5. [Lizenz](#lizenz)
 
 ---
 
-## Introduction
+## Einführung
 
-This repository contains a collection of server scripts and utilities designed to automate and simplify common administrative tasks.
+Dieses Repository enthält eine Sammlung von Server-Skripten und Hilfsprogrammen zur Automatisierung und Vereinfachung häufiger Verwaltungsaufgaben.
 
 ---
 
-## Directory Structure
+## Verzeichnisstruktur
 
 ```text
 📂 ServerHome
@@ -36,24 +35,23 @@ This repository contains a collection of server scripts and utilities designed t
 ```
 
 - **InContent.txt**
-  Additional documentation and notes.
+  Zusätzliche Dokumentation und Notizen.
 - **README.md**
-  This document.
+  Dieses Dokument.
 - **server-helb/**
-  Shell scripts for help pages.
+  Shell-Skripte für Hilfeseiten.
 - **server-management/**
-  Installer script `install.sh` for all management tools.
+  Installationsskript `install.sh` für alle Management-Tools.
 - **utilities/**
-  Python script `ping_test.py` for ping tests.
+  Python-Skript `ping_test.py` für Ping-Tests.
 - **webapp-install/**
-  Web application installation scripts.
+  Installationsskripte für Webanwendungen.
 
 ---
 
 ## Installation
 
-### Complete Block
-
+### komplettblock
 ```bash
 sudo apt-get update
 sudo apt-get install -y curl
@@ -63,7 +61,9 @@ sudo curl -fsSL \
 && sudo chmod +x /usr/local/bin/install.sh
 ```
 
-### Using curl
+Führe einen der folgenden Befehle auf deinem Server aus:
+
+### Mit `curl`
 
 ```bash
 sudo curl -fsSL \
@@ -72,7 +72,7 @@ sudo curl -fsSL \
 && sudo chmod +x /usr/local/bin/install.sh
 ```
 
-### Using wget
+### Mit `wget`
 
 ```bash
 sudo wget -qO /usr/local/bin/install.sh \
@@ -82,21 +82,21 @@ sudo wget -qO /usr/local/bin/install.sh \
 
 ---
 
-## Usage
+## Verwendung
 
-1. Run the installer script:
+1. Installationsskript ausführen:
 
    ```bash
    sudo install.sh
    ```
 
-2. List available scripts:
+2. Verfügbare Skripte auflisten:
 
    ```bash
    ls /usr/local/bin
    ```
 
-3. Example: Ping test (Python)
+3. Beispiel: Ping-Test (Python)
 
    ```bash
    ping_test.py
@@ -104,6 +104,6 @@ sudo wget -qO /usr/local/bin/install.sh \
 
 ---
 
-## License
+## Lizenz
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+Dieses Projekt steht unter der MIT License. Siehe [LICENSE](LICENSE) für Details.
