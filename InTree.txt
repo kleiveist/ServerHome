@@ -2,9 +2,10 @@
 ├── 📝 InContent.txt
 ├── 📝 README.md
 ├── 📂 server-helb/
-│   └── 📄 help_page.sh
+│   ├── 📄 help_page.sh
+│   └── 📄 help_pageA.sh
 ├── 📂 server-management/
-│   ├── 📝 install.txt
-│   └── 🐍 ping_test.py
+│   └── 📄 install.sh
 ├── 📂 utilities/
+│   └── 🐍 ping_test.py
 └── 📂 webapp-install/
