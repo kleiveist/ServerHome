@@ -24,11 +24,12 @@ Dieses Repository enthält eine Sammlung von Server-Skripten und Hilfsprogrammen
 📂 ServerHome
 ├── 📝 InContent.txt
 ├── 📝 README.md
-├── 📂 server-helb/
-│   ├── 📄 help_page.sh
-│   └── 📄 help_pageA.sh
-├── 📂 server-management/
+├── 📝 READMEDE.md
+├── 📂 inst/
 │   └── 📄 install.sh
+├── 📂 server-helb/
+│   └── 📄 help_page.sh
+├── 📂 server-management/
 ├── 📂 utilities/
 │   └── 🐍 ping_test.py
 └── 📂 webapp-install/

@@ -62,7 +62,7 @@ SCRIPT_PATH11="/usr/local/bin/11.sh"
 #+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+
 # 🔄 Dynamische Umwandlung in ein Array, ungültige Pfade ignorieren
 SCRIPT_PATHS=()
-for VAR in SCRIPT_PATH{1..11}; do
+for VAR in SCRIPT_PATH{0..11}; do
     VALUE="${!VAR}" # Hole den Wert der Variablen
     if [[ -n "$VALUE" && "$VALUE" != */ ]]; then
         SCRIPT_PATHS+=("$VALUE")
