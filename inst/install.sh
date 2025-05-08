@@ -80,7 +80,7 @@ done
 
 # Nur wenn mindestens eine Datei existiert, wird gefragt
 if (( ${#existing[@]} )); then
-    read -rp "Alte Skripte löschen? [y/N] " answer
+    read -rp "Alte Skripte löschen? [y/n] " answer
     case "${answer,,}" in
       y|yes )
         log_message "🗑️  Lösche alte Skripte..."
@@ -103,7 +103,7 @@ if check_file_exists "$SCRIPT_PATH0"; then
   cat << 'EOF' | sudo tee "$SCRIPT_PATH0" > /dev/null
 #!/bin/bash
 # ────────────────────────────────────────────────────────────────────────
-# system_vars.sh – zentrale Definition und Ausgabe Deiner System-Variablen
+# systemv.sh – zentrale Definition und Ausgabe Deiner System-Variablen
 # ────────────────────────────────────────────────────────────────────────
 
 # Variablen
@@ -120,14 +120,18 @@ log_message() {
 
 # Funktion zur strukturierten Ausgabe
 show_system_info() {
-  echo "╔════════════════════════════════════════════════════════════════╗"
-  echo "║                        📜 SYSTEMINFORMATIONEN                 ║"
-  echo "╠════════════════════════════════════════════════════════════════╣"
-  printf "║ Betriebssystem: %-49s ║\n" "$OS_DESCRIPTION"
-  printf "║ Hostname:       %-49s ║\n" "$HOSTNAME_VAR"
-  printf "║ Benutzer:       %-49s ║\n" "$USER_VAR"
-  printf "║ Aktuelle Zeit:  %-49s ║\n" "$CURRENT_TIME"
-  echo "╚════════════════════════════════════════════════════════════════╝"
+  local width=62
+  local border
+  border=$(printf '%*s' "$width" '' | tr ' ' '-')
+
+  echo "+$border+"
+  printf "| %-62s |\n" "SYSTEMINFORMATIONEN"
+  echo "+$border+"
+  printf "| Betriebssystem: %-44s |\n" "$OS_DESCRIPTION"
+  printf "| Hostname:       %-44s |\n" "$HOSTNAME_VAR"
+  printf "| Benutzer:       %-44s |\n" "$USER_VAR"
+  printf "| Aktuelle Zeit:  %-44s |\n" "$CURRENT_TIME"
+  echo "+$border+"
 }
 
 # Nur bei direkter Ausführung: Log und Anzeige
@@ -144,31 +148,34 @@ fi
 
 # 🔥 Skript1 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 Skript1 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH1"; then
-  sleep 1
+  sleep 0.5
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH1"
   {
-cat << 'STATIC_CONTENT'
+  cat << 'EOF' | sudo tee "$SCRIPT_PATH1" > /dev/null
 #!/bin/bash
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                        📜 VERFÜGBARE SCRIPTS                   ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ ┌────────────────────────────────────────────────────────────┐ ║"
-STATIC_CONTENT
 
-    # Einzige Methode: alle .sh/.py in /usr/local/bin
-    for f in /usr/local/bin/*.{sh,py}; do
-      [ -f "$f" ] || continue
-      FN=$(basename "$f")
-      # Füllt rechts mit Leerzeichen auf, damit die Breite passt
-      PADDING=$((55 - ${#FN}))
-      printf 'echo "║ │  📜 %s%*s │ ║"\n' "$FN" "$PADDING" ""
-    done
+# Breite des äußeren Rahmens (insg. 66 Zeichen)
+outer_dash=$(printf '%*s' 64 '' | tr ' ' -)
+# Breite des inneren Rahmens (insg. 62 Zeichen)
+inner_dash=$(printf '%*s' 62 '' | tr ' ' -)
 
-  cat << 'STATIC_CONTENT_END'
-echo "║ └────────────────────────────────────────────────────────────┘ ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-STATIC_CONTENT_END
+echo
+echo "+$outer_dash+"
+echo "|                    📜 VERFÜGBARE SCRIPTS                    |"
+echo "+$outer_dash+"
+echo "| +$inner_dash+ |"
+
+for f in /usr/local/bin/*.sh /usr/local/bin/*.py; do
+  [ -f "$f" ] || continue
+  FN=$(basename "$f")
+  # linksbündig auf 55 Zeichen, rest bleibt leer
+  printf '| |  📜 %-55s | |\n' "$FN"
+done
+
+echo "| +$inner_dash+ |"
+echo "+$outer_dash+"
+
+EOF
   } | sudo tee "$SCRIPT_PATH1" > /dev/null
 
   process_script_creation "$SCRIPT_PATH1"
@@ -176,7 +183,7 @@ fi
 
 # 🔥 Skript2 erstellen 🔥+- - - - - - - - - - - - -- - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 Skript2 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH2"; then
-  sleep 1
+  sleep 0.5
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH2"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH2" > /dev/null
 #!/bin/bash
@@ -345,7 +352,7 @@ echo "║                        📚 HILFE-SKRIPTE                        ║"
 echo "╠════════════════════════════════════════════════════════════════╣"
 echo "║ ┌────────────────────────────────────────────────────────────┐ ║"
 echo "║ │ 3 - 📚 help.sh                                             │ ║"
-echo "║ │ 4 - 📚 kripts.sh                                           │ ║"
+echo "║ │ 4 - 📚 skripts.sh                                           │ ║"
 echo "║ └────────────────────────────────────────────────────────────┘ ║"
 echo "╚════════════════════════════════════════════════════════════════╝"
 }
@@ -771,7 +778,7 @@ fi
 
 # 🔥 SCRIPT_PATH3 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH3 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH3"; then
-  sleep 1
+  sleep 0.5
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH3"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH3" > /dev/null
 #!/bin/bash
@@ -828,7 +835,7 @@ EOF
 fi
 # 🔥 SCRIPT_PATH4 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH4 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH4"; then
-  sleep 1
+  sleep 0.5
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH4"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH4" > /dev/null
 #!/usr/bin/env python3
@@ -888,7 +895,7 @@ fi
 
 # 🔥 SCRIPT_PATH5 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH5 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH5"; then
-  sleep 1
+  sleep 0.5
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH5"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH5" > /dev/null
 #!/usr/bin/env python3
@@ -1010,7 +1017,7 @@ EOF
 fi
 # 🔥 SCRIPT_PATH8 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH8 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH8"; then
-  sleep 1
+  sleep 0.5
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH8"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH8" > /dev/null
 # 🎉 Platzhalter
@@ -1022,7 +1029,7 @@ EOF
 fi
 # 🔥 SCRIPT_PATH9 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH9 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH9"; then
-  sleep 1
+  sleep 0.5
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH9"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH9" > /dev/null
 # 🎉 Platzhalter
@@ -1034,7 +1041,7 @@ EOF
 fi
 # 🔥 SCRIPT_PATH10 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH10 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH10"; then
-  sleep 1
+  sleep 0.5
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH10"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH10" > /dev/null
 # 🎉 Platzhalter
@@ -1046,7 +1053,7 @@ EOF
 fi
 # 🔥 SCRIPT_PATH11 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH11 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH11"; then
-  sleep 1
+  sleep 0.5
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH11"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH11" > /dev/null
 # 🎉 Platzhalter
@@ -1059,7 +1066,7 @@ fi
 
 # 🔥 Skript 999 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 Skript 999 erstellen 🔥
 #if check_file_exists "$SCRIPT_PATH999"; then
-#  sleep 1
+#  sleep 0.5
 #  log_message "📄 Erstelle die Datei: $SCRIPT_PATH999"
 #  cat << 'EOF' | sudo tee "$SCRIPT_PATH999" > /dev/null
 #[📝 Skript 999 einfügen 📝]
@@ -1149,7 +1156,7 @@ if ! grep -q 'sudo /usr/local/bin/cat_hosts.sh' ~/.bashrc; then
 if [ -n "$SSH_CONNECTION" ]; then  # Prüft, ob eine SSH-Verbindung besteht
     sudo /usr/local/bin/cat_hosts.sh  # Führt Skript cat_hosts.sh aus
     if [ $? -eq 0 ]; then  # Überprüft, ob cat_hosts.sh erfolgreich abgeschlossen (Exit-Code 0)
-        sudo /usr/local/bin/skripts.sh  # Führt show_help_skripts.sh aus
+        sudo /usr/local/bin/skripts.sh  # Führt skripts.sh aus
     else
         echo "❌ cat_hosts.sh fehlgeschlagen. skripts.sh wird nicht ausgeführt."
     fi
