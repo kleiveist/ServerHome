@@ -38,7 +38,7 @@ process_script_creation() {
   if [ $? -ne 0 ]; then
     log_message "❌ Fehler: Skript $script_path wurde nicht erstellt."
   else
-    sleep 2
+    sleep 0.5
     sudo chmod +x "$script_path"
     log_message "🎉 Skript erfolgreich erstellt | : $script_path"
   fi
@@ -94,12 +94,12 @@ if (( ${#existing[@]} )); then
         ;;
     esac
 fi
+
 #+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+
 # 🔥 Skript0 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - - - -+🔥 Skript0 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH0"; then
-  sleep 1
+  sleep 0.2
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH0"
-  {
   cat << 'EOF' | sudo tee "$SCRIPT_PATH0" > /dev/null
 #!/bin/bash
 # ────────────────────────────────────────────────────────────────────────
@@ -141,7 +141,6 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
 fi
 
 EOF
-  } | sudo tee "$SCRIPT_PATH0" > /dev/null
 
   process_script_creation "$SCRIPT_PATH0"
 fi
@@ -899,27 +898,40 @@ if check_file_exists "$SCRIPT_PATH5"; then
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH5"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH5" > /dev/null
 #!/usr/bin/env python3
-
 import os
+import socket
 import subprocess
 from datetime import datetime
 
-# Serverliste mit für 192.168.178.112
+# 1) Versuche ENV-Variable, 2) Fallback auf Socket-Abfrage
+def get_server_ip():
+    if ip := os.getenv("SERVER_IP"):
+        return ip
+    # Fallback
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(("8.8.8.8", 80))
+        return s.getsockname()[0]
+    finally:
+        s.close()
+
+# Übergebe Bash-Variable als ENV
+SERVER_IP = get_server_ip()
+# Präfix aus den ersten drei Oktetten
+PREFIX = ".".join(SERVER_IP.split('.')[:3])
+
 HOSTS = {
     "1.1.1.1": "Cloudflare DNS",
     "8.8.8.8": "Google DNS",
-    "192.168.178.1": "RouterHome",
-    "192.168.178.4": "Pi-hole DNS",
-    "192.168.178.5": "VPN Server",
-    "192.168.178.115": "book server",
-    "books.local": "book-domain1",
-    "bookstack.local": "book-domain2",
+    SERVER_IP: "Server",
+    f"{PREFIX}.1": "RouterHome",
+    f"{PREFIX}.4": "Pi-hole DNS",
+    f"{PREFIX}.5": "VPN Server",
+    "domain1.local": "book-domain1",
+    "domain2.local": "book-domain2",
 }
 
 def ping_host(host):
-    """
-    Pingt einen Host und gibt True zurück, wenn er erreichbar ist, andernfalls False.
-    """
     try:
         subprocess.run(
             ["ping", "-c", "3", "-W", "2", host],
@@ -933,33 +945,28 @@ def ping_host(host):
 
 def main():
     print("==== Ping-Test starten ====")
-    print(f"Datum: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-
-    failed_hosts = []
-
-    for host, description in HOSTS.items():
-        print(f"Pinge {host} ({description})...")
-        if ping_host(host):
-            print(f"{host} ({description}) ist erreichbar ✅")
-        else:
-            print(f"{host} ({description}) ist nicht erreichbar ❌")
-            failed_hosts.append(f"{host} ({description})")
+    print(f"Datum: {datetime.now():%Y-%m-%d %H:%M:%S}\\n")
+    failed = []
+    for host, desc in HOSTS.items():
+        print(f"Pinge {host} ({desc})…")
+        (print(f"{host} ({desc}) ist erreichbar ✅") 
+         if ping_host(host) 
+         else (failed.append(f"{host} ({desc})") or print(f"{host} ({desc}) ist nicht erreichbar ❌")))
         print()
-
     print("==== Ping-Test abgeschlossen ====")
-    if failed_hosts:
+    if failed:
         print("==== Fehlgeschlagene Hosts ====")
-        for failed in failed_hosts:
-            print(failed)
+        print(*failed, sep="\n")
     else:
         print("Alle Hosts sind erreichbar ✅")
-
-    # Skript beendet sich mit [Enter]
-#    input("==== [Enter], um das Skript zu beenden ====\n")
 
 if __name__ == "__main__":
     main()
 EOF
+
+# Umgebungsvariable für Python setzen
+export SERVER_IP
+
   process_script_creation "$SCRIPT_PATH5"
   # 📝 SCRIPT_PATH5 wurde erfolgreich verarbeitet
 fi
