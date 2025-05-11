@@ -853,7 +853,7 @@ from datetime import datetime
 
 HOSTS_FILE = "/etc/hosts"
 
-# Ermitteln von IPs aus ENV oder (für IP1) per Socket-Fallback
+# Ermitteln von IPs aus ENV oder (f  r IP1) per Socket-Fallback
 def get_ip(env_var):
     ip = os.getenv(env_var)
     if ip:
@@ -868,22 +868,20 @@ def get_ip(env_var):
     return None
 
 IP1 = get_ip("IP1")
-IP2 = get_ip("IP2")
-IP3 = get_ip("IP3")
 
 # Domains kommen aus Bash-Wrapper via ENV: LOCAL_DOMAIN, GLOBAL_DOMAIN
 # Falls nicht gesetzt, Fallback auf domain.local und domain.global
 local = os.getenv("LOCAL_DOMAIN", "domain.local")
 global_dom = os.getenv("GLOBAL_DOMAIN", "domain.global")
 # Jetzt fest in den Listen eingebettet:
-DOMAINS_IP1 = ["$LOCAL_DOMAIN"]
-DOMAINS_IP2 = ["$GLOBAL_DOMAIN"]
+DOMAINS_IP1 = ["book.local"]
+DOMAINS_IP2 = ["book.com"]
 
 # Loggingfunktion
 def log(msg):
     print(f"{datetime.now():%Y-%m-%d %H:%M:%S} - {msg}")
 
-# Einträge hinzufügen, falls nicht vorhanden
+# Eintr  ge hinzuf  gen, falls nicht vorhanden
 def add_entries(ip, domains, header):
     if not ip or not domains:
         return
@@ -896,17 +894,15 @@ def add_entries(ip, domains, header):
         for d in domains:
             if d and not any(d in line.split() for line in lines):
                 f.write(f"{ip} {d}\n")
-                log(f"Eintrag hinzugefügt: {ip} {d}")
+                log(f"Eintrag hinzugef  gt: {ip} {d}")
 
 if __name__ == "__main__":
     if os.geteuid() != 0:
-        print("Dieses Skript muss als root ausgeführt werden!")
+        print("Dieses Skript muss als root ausgef  hrt werden!")
         exit(1)
 
-    add_entries(IP1, DOMAINS_IP1, "# 💻 ====== LOCAL_DOMAIN ====== 💻")
-    add_entries(IP2, DOMAINS_IP2, "# 🌐 ====== GLOBAL_DOMAIN ====== 🌐")
-    add_entries(IP3, DOMAINS_IP3, "# 📼 ====== IP3 ====== 📼")
-
+    add_entries(IP1, DOMAINS_IP1, "#====== LOCAL_DOMAIN ======")
+    add_entries(IP1, DOMAINS_IP2, "#====== GLOBAL_DOMAIN ======")
 EOF
   process_script_creation "$SCRIPT_PATH4"
   # 📝 SCRIPT_PATH4 wurde erfolgreich verarbeitet
@@ -1034,35 +1030,32 @@ URLS=(
   "https://${GLOBAL_DOMAIN}"
 )
 
-# Prüfung und Speicherung
 declare -a RESULTS
+
 check_url() {
-  local url=$1
+  local url="$1"
   if curl -k -I --silent --fail "$url" >/dev/null; then
-    RESULTS+=("$url|✅ erreichbar")
+    mark="✅"
   else
-    RESULTS+=("$url|❌ nicht erreichbar")
+    mark="❌"
   fi
+  RESULTS+=( "$url|$mark" )
 }
 
-log_message "Überprüfe Webdienste auf $SERVER_IP, $LOCAL_DOMAIN, $GLOBAL_DOMAIN"
+# URLs prüfen
 for url in "${URLS[@]}"; do
   check_url "$url"
 done
 
-# Tabellenkopf
-printf '+-%-60s-+-%-16s-+\n' "$(printf '%.0s-' {1..60})" "$(printf '%.0s-' {1..16})"
+# Tabelle ausgeben
+printf '+-%-60s-+-%-16s-+\n' "------------------------------------------------------------" "----------------"
 printf '| %-60s | %-16s |\n' "URL" "Status"
-printf '+-%-60s-+-%-16s-+\n' "$(printf '%.0s=' {1..60})" "$(printf '%.0s=' {1..16})"
-
-# Zeilen
+printf '+-%-60s-+-%-16s-+\n' "============================================================" "================"
 for entry in "${RESULTS[@]}"; do
-  IFS='|' read -r url status <<< "$entry"
-  printf '| %-60s | %-16s |\n' "$url" "$status"
+  IFS='|' read -r u status <<< "$entry"
+  printf '| %-60s | %-16s |\n' "$u" "$status"
 done
-
-# Tabellenende
-printf '+-%-60s-+-%-16s-+\n' "$(printf '%.0s-' {1..60})" "$(printf '%.0s-' {1..16})"
+printf '+-%-60s-+-%-16s-+\n' "------------------------------------------------------------" "----------------"
 EOF
   process_script_creation "$SCRIPT_PATH7"
   # 📝 SCRIPT_PATH7 wurde erfolgreich verarbeitet
