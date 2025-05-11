@@ -1042,20 +1042,20 @@ check_url() {
   RESULTS+=( "$url|$mark" )
 }
 
-# URLs prüfen
+# Prüfen
 for url in "${URLS[@]}"; do
   check_url "$url"
 done
 
-# Tabelle ausgeben
-printf '+-%-60s-+-%-16s-+\n' "------------------------------------------------------------" "----------------"
-printf '| %-60s | %-16s |\n' "URL" "Status"
-printf '+-%-60s-+-%-16s-+\n' "============================================================" "================"
+# Ausgabe-Tabelle
+printf '+-%-60s-+-%-3s-+\n' "------------------------------------------------------------" "---"
+printf '| %-60s | %-3s |\n' "URL" ""
+printf '+-%-60s-+-%-3s-+\n' "============================================================" "==="
 for entry in "${RESULTS[@]}"; do
-  IFS='|' read -r u status <<< "$entry"
-  printf '| %-60s | %-16s |\n' "$u" "$status"
+  IFS='|' read -r u mark <<< "$entry"
+  printf '| %-60s | %-3s |\n' "$u" "$mark"
 done
-printf '+-%-60s-+-%-16s-+\n' "------------------------------------------------------------" "----------------"
+printf '+-%-60s-+-%-3s-+\n' "------------------------------------------------------------" "---"
 EOF
   process_script_creation "$SCRIPT_PATH7"
   # 📝 SCRIPT_PATH7 wurde erfolgreich verarbeitet
