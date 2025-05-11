@@ -845,7 +845,7 @@ fi
 if check_file_exists "$SCRIPT_PATH4"; then
   sleep 0.1
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH4"
-  cat <<EOF  | sudo tee "$SCRIPT_PATH4" > /dev/null
+  cat <<EOF | sudo tee "$SCRIPT_PATH4" > /dev/null
 #!/usr/bin/env python3
 import os
 import socket
@@ -875,9 +875,9 @@ IP3 = get_ip("IP3")
 # Falls nicht gesetzt, Fallback auf domain.local und domain.global
 local = os.getenv("LOCAL_DOMAIN", "domain.local")
 global_dom = os.getenv("GLOBAL_DOMAIN", "domain.global")
-DOMAINS_IP1 = [local]
-DOMAINS_IP2 = [global_dom]
-DOMAINS_IP3 = os.getenv("DOMAINS_IP3", "").split(",") if os.getenv("DOMAINS_IP3") else []
+# Jetzt fest in den Listen eingebettet:
+DOMAINS_IP1 = ["$LOCAL_DOMAIN"]
+DOMAINS_IP2 = ["$GLOBAL_DOMAIN"]
 
 # Loggingfunktion
 def log(msg):
@@ -969,8 +969,8 @@ def main():
     failed = []
     for host, desc in HOSTS.items():
         print(f"Pinge {host} ({desc})…")
-        (print(f"{host} ({desc}) ist erreichbar ✅") 
-         if ping_host(host) 
+        (print(f"{host} ({desc}) ist erreichbar ✅")
+         if ping_host(host)
          else (failed.append(f"{host} ({desc})") or print(f"{host} ({desc}) ist nicht erreichbar ❌")))
         print()
     print("==== Ping-Test abgeschlossen ====")
@@ -1017,10 +1017,14 @@ if check_file_exists "$SCRIPT_PATH7"; then
   sleep 0.1
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH7"
   cat <<EOF | sudo tee "$SCRIPT_PATH7" > /dev/null
-# ────────────────────────────────────────────────────────────────────────
-# 🌐 Web-Check: HTTP/HTTPS auf Server-IP und Domains
-# ────────────────────────────────────────────────────────────────────────
-# URL-Liste dynamisch aus Variablen zusammenbauen
+#!/bin/bash
+log_message() {
+  echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
+}
+
+# Dynamische Variablen (müssen aus Deinem Wrapper kommen)
+# SERVER_IP, LOCAL_DOMAIN, GLOBAL_DOMAIN
+
 URLS=(
   "http://${SERVER_IP}"
   "https://${SERVER_IP}"
@@ -1030,21 +1034,35 @@ URLS=(
   "https://${GLOBAL_DOMAIN}"
 )
 
-# Funktion zum Prüfen einer URL
+# Prüfung und Speicherung
+declare -a RESULTS
 check_url() {
   local url=$1
   if curl -k -I --silent --fail "$url" >/dev/null; then
-    echo "✅ $url ist erreichbar"
+    RESULTS+=("$url|✅ erreichbar")
   else
-    echo "❌ $url ist nicht erreichbar"
+    RESULTS+=("$url|❌ nicht erreichbar")
   fi
 }
 
-log_message "🔍 Überprüfe Webdienste auf $SERVER_IP, $LOCAL_DOMAIN, $GLOBAL_DOMAIN"
+log_message "Überprüfe Webdienste auf $SERVER_IP, $LOCAL_DOMAIN, $GLOBAL_DOMAIN"
 for url in "${URLS[@]}"; do
   check_url "$url"
 done
 
+# Tabellenkopf
+printf '+-%-60s-+-%-16s-+\n' "$(printf '%.0s-' {1..60})" "$(printf '%.0s-' {1..16})"
+printf '| %-60s | %-16s |\n' "URL" "Status"
+printf '+-%-60s-+-%-16s-+\n' "$(printf '%.0s=' {1..60})" "$(printf '%.0s=' {1..16})"
+
+# Zeilen
+for entry in "${RESULTS[@]}"; do
+  IFS='|' read -r url status <<< "$entry"
+  printf '| %-60s | %-16s |\n' "$url" "$status"
+done
+
+# Tabellenende
+printf '+-%-60s-+-%-16s-+\n' "$(printf '%.0s-' {1..60})" "$(printf '%.0s-' {1..16})"
 EOF
   process_script_creation "$SCRIPT_PATH7"
   # 📝 SCRIPT_PATH7 wurde erfolgreich verarbeitet
@@ -1131,7 +1149,22 @@ if [ -f "$SCRIPT_PATH0" ]; then
     fi
 else
     log_message "❌ $(basename "$SCRIPT_PATH0") nicht gefunden."
-    exit 1
+fi
+#+----------------------------------------------------------------------------------------------------------------------------------+
+# ⚙️ Führe upgrade.sh aus | SCRIPT_PATH3="/usr/local/bin/upgrade.sh"
+sleep 1
+log_message "🛠️ Starte System-Upgrade"
+if [ -f "$SCRIPT_PATH3" ]; then
+    sleep 1
+    log_message "✅ upgrade.sh gefunden. Starte Skript."
+    if sudo bash "$SCRIPT_PATH3" | tee -a /var/log/installation_script.log; then
+        log_message "🎉 upgrade.sh erfolgreich ausgeführt."
+    else
+        log_message "❌ Fehler beim Ausführen von upgrade.sh"
+        exit 1
+    fi
+else
+    log_message "❌ upgrade.sh nicht gefunden."
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
 # ⚙️ Führe update_hosts.py aus | SCRIPT_PATH4="/usr/local/bin/update_hosts.py"
@@ -1148,7 +1181,6 @@ if [ -f "$SCRIPT_PATH4" ]; then
     fi
 else
     log_message "❌ update_hosts.py nicht gefunden."
-    exit 1
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
 # ⚙️ Führe ping_test.py aus | SCRIPT_PATH5="/usr/local/bin/ping_test.py"
@@ -1164,6 +1196,7 @@ if [ -f "$SCRIPT_PATH5" ]; then
         log_message "🎉 ping_test.py erfolgreich ausgeführt."
     else
         log_message "❌ Fehler beim Ausführen von ping_test.py (Exit-Code: $RET)"
+        exit 1
     fi
 else
     log_message "❌ ping_test.py nicht gefunden."
@@ -1219,7 +1252,6 @@ if [ -f "$SCRIPT_PATH11" ]; then
     fi
 else
     log_message "❌ check_urls.sh nicht gefunden."
-    exit 1
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
 # Neustart des Systems
