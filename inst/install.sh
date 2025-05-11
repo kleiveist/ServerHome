@@ -19,7 +19,7 @@ log_message "🔧 Installationsserver IP ermittelt: $SERVER_IP"
 #+-------------------------------------------------------------------------------------------------------------------------------+
 # 🛠️ Funktion zur Überprüfung, ob die Datei bereits existiert
 check_file_exists() {
-  sleep 0.3
+  sleep 0.1
   local file_path=$1
   if [ -f "$file_path" ]; then
     log_message "ℹ️  Datei $file_path existiert bereits. Erstellung wird übersprungen."
@@ -94,13 +94,22 @@ if (( ${#existing[@]} )); then
         ;;
     esac
 fi
+# ────────────────────────────────────────────────────────────────────────
+# 🌐 Domains abfragen
+# ────────────────────────────────────────────────────────────────────────
+read -rp "Lokale Domain (z.B. domain.local) [domain.local]: " LOCAL_DOMAIN
+LOCAL_DOMAIN=${LOCAL_DOMAIN:-domain.local}
 
+read -rp "Globale Domain (z.B. example.com) [domain.global]: " GLOBAL_DOMAIN
+GLOBAL_DOMAIN=${GLOBAL_DOMAIN:-domain.global}
+
+log_message "🌐 Verwende Domains: $LOCAL_DOMAIN, $GLOBAL_DOMAIN"
 #+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+
 # 🔥 Skript0 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - - - -+🔥 Skript0 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH0"; then
-  sleep 0.2
+  sleep 0.1
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH0"
-  cat << 'EOF' | sudo tee "$SCRIPT_PATH0" > /dev/null
+  cat <<EOF  | sudo tee "$SCRIPT_PATH0" > /dev/null
 #!/bin/bash
 # ────────────────────────────────────────────────────────────────────────
 # systemv.sh – zentrale Definition und Ausgabe Deiner System-Variablen
@@ -147,7 +156,7 @@ fi
 
 # 🔥 Skript1 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 Skript1 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH1"; then
-  sleep 0.5
+  sleep 0.1
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH1"
   {
   cat << 'EOF' | sudo tee "$SCRIPT_PATH1" > /dev/null
@@ -182,7 +191,7 @@ fi
 
 # 🔥 Skript2 erstellen 🔥+- - - - - - - - - - - - -- - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 Skript2 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH2"; then
-  sleep 0.5
+  sleep 0.1
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH2"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH2" > /dev/null
 #!/bin/bash
@@ -777,7 +786,7 @@ fi
 
 # 🔥 SCRIPT_PATH3 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH3 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH3"; then
-  sleep 0.5
+  sleep 0.1
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH3"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH3" > /dev/null
 #!/bin/bash
@@ -834,59 +843,70 @@ EOF
 fi
 # 🔥 SCRIPT_PATH4 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH4 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH4"; then
-  sleep 0.5
+  sleep 0.1
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH4"
-  cat << 'EOF' | sudo tee "$SCRIPT_PATH4" > /dev/null
+  cat <<EOF  | sudo tee "$SCRIPT_PATH4" > /dev/null
 #!/usr/bin/env python3
 import os
+import socket
+from datetime import datetime
 
 HOSTS_FILE = "/etc/hosts"
-IP1 = "192.168.178.115"
-#IP2 = "192.168.178.111"
-#IP3 = "192.168.178.xxx"
-DOMAINS_IP1 = ["books.local", "bookstack.local"]
-#DOMAINS_IP2 = ["cloud.local", "nextcloud.local"]
-#DOMAINS_IP3 = ["xxx.local", "xyz.local"]
 
-def update_hosts():
-    # Lese vorhandene Einträge aus der Hosts-Datei
-    with open(HOSTS_FILE, "r") as file:
-        lines = file.readlines()
+# Ermitteln von IPs aus ENV oder (für IP1) per Socket-Fallback
+def get_ip(env_var):
+    ip = os.getenv(env_var)
+    if ip:
+        return ip
+    if env_var == "IP1":
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            s.connect(("8.8.8.8", 80))
+            return s.getsockname()[0]
+        finally:
+            s.close()
+    return None
 
-    # Neue Einträge für IP1 und zugehörige Domains hinzufügen, wenn sie nicht existieren
-    with open(HOSTS_FILE, "a") as file:
-        if not any("# 💻 ====== IP from Server ====== 💻" in line for line in lines):
-            file.write("# 💻 ====== IP from Server ====== 💻\n")
-        for domain in DOMAINS_IP1:
-            if not any(domain in line.split() for line in lines):
-                entry = f"{IP1} {domain}\n"
-                file.write(entry)
-                print(f"Eintrag hinzugefügt: {entry.strip()}")
-        """
-        if not any("# 🌐 ====== IP Network Server 1 ====== 🌐" in line for line in lines):
-            file.write("# 🌐 ====== IP Network Server 1 ====== 🌐\n")
-        # Neue Einträge für IP2 und zugehörige Domains hinzufügen, wenn sie nicht existieren
-        for domain in DOMAINS_IP2:
-            if not any(domain in line.split() for line in lines):
-                entry = f"{IP2} {domain}\n"
-                file.write(entry)
-                print(f"Eintrag hinzugefügt: {entry.strip()}")
-        """
-        """
-        if not any("# 📼 ====== IP Network Server 2 ====== 📼" in line for line in lines):
-            file.write("# 📼 ====== IP Network Server 2 ====== 📼\n")
-        # Neue Einträge für IP3 und zugehörige Domains hinzufügen, wenn sie nicht existieren
-        for domain in DOMAINS_IP3:
-            if not any(domain in line.split() for line in lines):
-                entry = f"{IP3} {domain}\n"
-                file.write(entry)
-                print(f"Eintrag hinzugefügt: {entry.strip()}")
-        """
+IP1 = get_ip("IP1")
+IP2 = get_ip("IP2")
+IP3 = get_ip("IP3")
+
+# Domains kommen aus Bash-Wrapper via ENV: LOCAL_DOMAIN, GLOBAL_DOMAIN
+# Falls nicht gesetzt, Fallback auf domain.local und domain.global
+local = os.getenv("LOCAL_DOMAIN", "domain.local")
+global_dom = os.getenv("GLOBAL_DOMAIN", "domain.global")
+DOMAINS_IP1 = [local]
+DOMAINS_IP2 = [global_dom]
+DOMAINS_IP3 = os.getenv("DOMAINS_IP3", "").split(",") if os.getenv("DOMAINS_IP3") else []
+
+# Loggingfunktion
+def log(msg):
+    print(f"{datetime.now():%Y-%m-%d %H:%M:%S} - {msg}")
+
+# Einträge hinzufügen, falls nicht vorhanden
+def add_entries(ip, domains, header):
+    if not ip or not domains:
+        return
+    with open(HOSTS_FILE, "r") as f:
+        lines = f.readlines()
+    if not any(header in line for line in lines):
+        with open(HOSTS_FILE, "a") as f:
+            f.write(f"{header}\n")
+    with open(HOSTS_FILE, "a") as f:
+        for d in domains:
+            if d and not any(d in line.split() for line in lines):
+                f.write(f"{ip} {d}\n")
+                log(f"Eintrag hinzugefügt: {ip} {d}")
+
 if __name__ == "__main__":
     if os.geteuid() != 0:
         print("Dieses Skript muss als root ausgeführt werden!")
         exit(1)
-    update_hosts()
+
+    add_entries(IP1, DOMAINS_IP1, "# 💻 ====== LOCAL_DOMAIN ====== 💻")
+    add_entries(IP2, DOMAINS_IP2, "# 🌐 ====== GLOBAL_DOMAIN ====== 🌐")
+    add_entries(IP3, DOMAINS_IP3, "# 📼 ====== IP3 ====== 📼")
+
 EOF
   process_script_creation "$SCRIPT_PATH4"
   # 📝 SCRIPT_PATH4 wurde erfolgreich verarbeitet
@@ -894,9 +914,9 @@ fi
 
 # 🔥 SCRIPT_PATH5 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH5 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH5"; then
-  sleep 0.5
+  sleep 0.1
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH5"
-  cat << 'EOF' | sudo tee "$SCRIPT_PATH5" > /dev/null
+  cat <<EOF  | sudo tee "$SCRIPT_PATH5" > /dev/null
 #!/usr/bin/env python3
 import os
 import socket
@@ -927,8 +947,8 @@ HOSTS = {
     f"{PREFIX}.1": "RouterHome",
     f"{PREFIX}.4": "Pi-hole DNS",
     f"{PREFIX}.5": "VPN Server",
-    "domain1.local": "book-domain1",
-    "domain2.local": "book-domain2",
+    "$LOCAL_DOMAIN": "book-domain1",
+    "$GLOBAL_DOMAIN": "book-domain2",
 }
 
 def ping_host(host):
@@ -973,6 +993,7 @@ fi
 
 # 🔥 SCRIPT_PATH6 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH6 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH6"; then
+  sleep 0.1
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH6"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH6" > /dev/null
 #!/bin/bash
@@ -993,38 +1014,44 @@ EOF
 fi
 # 🔥 SCRIPT_PATH7 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH7 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH7"; then
+  sleep 0.1
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH7"
-  cat << 'EOF' | sudo tee "$SCRIPT_PATH7" > /dev/null
-#!/bin/bash
-
-# Liste der zu prüfenden URLs
+  cat <<EOF | sudo tee "$SCRIPT_PATH7" > /dev/null
+# ────────────────────────────────────────────────────────────────────────
+# 🌐 Web-Check: HTTP/HTTPS auf Server-IP und Domains
+# ────────────────────────────────────────────────────────────────────────
+# URL-Liste dynamisch aus Variablen zusammenbauen
 URLS=(
-    "http://192.168.178.115"
-    "https://192.168.178.115"
-    "https://book.local"
-    "https://bookstack.local"
+  "http://${SERVER_IP}"
+  "https://${SERVER_IP}"
+  "http://${LOCAL_DOMAIN}"
+  "https://${LOCAL_DOMAIN}"
+  "http://${GLOBAL_DOMAIN}"
+  "https://${GLOBAL_DOMAIN}"
 )
-# Funktion zum Prüfen der URL
+
+# Funktion zum Prüfen einer URL
 check_url() {
-    local url=$1
-    if curl -k -I --silent --output /dev/null --fail "$url"; then
-        echo "✅ $url"
-    else
-        echo "❌ $url"
-    fi
+  local url=$1
+  if curl -k -I --silent --fail "$url" >/dev/null; then
+    echo "✅ $url ist erreichbar"
+  else
+    echo "❌ $url ist nicht erreichbar"
+  fi
 }
-# Hauptlogik: Iteriere über alle URLs und prüfe sie
-echo "🔍 Überprüfe URLs..."
+
+log_message "🔍 Überprüfe Webdienste auf $SERVER_IP, $LOCAL_DOMAIN, $GLOBAL_DOMAIN"
 for url in "${URLS[@]}"; do
-    check_url "$url"
+  check_url "$url"
 done
+
 EOF
   process_script_creation "$SCRIPT_PATH7"
   # 📝 SCRIPT_PATH7 wurde erfolgreich verarbeitet
 fi
 # 🔥 SCRIPT_PATH8 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH8 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH8"; then
-  sleep 0.5
+  sleep 0.1
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH8"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH8" > /dev/null
 # 🎉 Platzhalter
@@ -1036,7 +1063,7 @@ EOF
 fi
 # 🔥 SCRIPT_PATH9 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH9 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH9"; then
-  sleep 0.5
+  sleep 0.1
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH9"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH9" > /dev/null
 # 🎉 Platzhalter
@@ -1048,7 +1075,7 @@ EOF
 fi
 # 🔥 SCRIPT_PATH10 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH10 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH10"; then
-  sleep 0.5
+  sleep 0.1
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH10"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH10" > /dev/null
 # 🎉 Platzhalter
@@ -1060,7 +1087,7 @@ EOF
 fi
 # 🔥 SCRIPT_PATH11 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH11 erstellen 🔥
 if check_file_exists "$SCRIPT_PATH11"; then
-  sleep 0.5
+  sleep 0.1
   log_message "📄 Erstelle die Datei: $SCRIPT_PATH11"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH11" > /dev/null
 # 🎉 Platzhalter
@@ -1130,15 +1157,16 @@ log_message "🛠️ Prüfe erforderliche Verbindungen"
 if [ -f "$SCRIPT_PATH5" ]; then
     sleep 1
     log_message "✅ ping_test.py gefunden. Starte Skript."
-    if sudo python3 "$SCRIPT_PATH5" | tee -a /var/log/installation_script.log; then
+    # Unbuffered Python-Output, Echtzeit im Terminal und ins Log
+    sudo PYTHONUNBUFFERED=1 python3 "$SCRIPT_PATH5" 2>&1 | tee -a /var/log/installation_script.log
+    RET=${PIPESTATUS[0]}
+    if [ "$RET" -eq 0 ]; then
         log_message "🎉 ping_test.py erfolgreich ausgeführt."
     else
-        log_message "❌ Fehler beim Ausführen von ping_test.py"
-        exit 1
+        log_message "❌ Fehler beim Ausführen von ping_test.py (Exit-Code: $RET)"
     fi
 else
     log_message "❌ ping_test.py nicht gefunden."
-    exit 1
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
 # 🛠️ Eintrag in crontab vornehmen
