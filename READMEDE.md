@@ -103,9 +103,24 @@ sudo wget -qO /usr/local/bin/install.sh \
    ```bash
    ping_test.py
    ```
+4. Hilfe seite Skripte:
 
+   ```bash
+   help_page.sh
+   ```
 ---
 
 ## Lizenz
 
 Dieses Projekt steht unter der MIT License. Siehe [LICENSE](LICENSE) für Details.
+---
+
+### Using curl help_page.sh
+
+```bash
+sudo curl -fsSL \
+  https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-helb/help_page.sh \
+  -o /usr/local/bin/help_page.sh \
+&& sudo chmod +x /usr/local/bin/help_page.sh
+```
+---
