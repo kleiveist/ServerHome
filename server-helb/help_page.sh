@@ -1,6 +1,18 @@
 #!/bin/bash
 
-# Funktion zur Navigation der Seiten
+# ────────────────────────────────────────────────────────────────────────
+# Page Navigation Functions
+# ────────────────────────────────────────────────────────────────────────
+
+# 🛠️ Function to display navigation instructions
+function display_navigation_instructions() {
+    echo ""
+    echo "🔄 Navigate with left (←) / right (→), exit with down arrow (↓) || Ctrl + X"
+    echo "📄 This is page $current_page"
+    echo ""
+}
+
+# Function to navigate between pages
 function navigate_pages() {
     current_page=1
     total_pages=11
@@ -8,76 +20,85 @@ function navigate_pages() {
     while true; do
         clear
 
-        # Anzeige der Anweisung oben
+        # display instructions at top
         display_navigation_instructions
 
-        if [ "$current_page" -eq 1 ]; then
-            display_page_1
-        elif [ "$current_page" -eq 2 ]; then
-            display_page_2
-        elif [ "$current_page" -eq 3 ]; then
-            display_page_3
-        elif [ "$current_page" -eq 4 ]; then
-            display_page_4
-        elif [ "$current_page" -eq 5 ]; then
-            display_page_5
-        elif [ "$current_page" -eq 6 ]; then
-            display_page_6
-        elif [ "$current_page" -eq 7 ]; then
-            display_page_7
-        elif [ "$current_page" -eq 8 ]; then
-            display_page_8
-        elif [ "$current_page" -eq 9 ]; then
-            display_page_9
-       elif [ "$current_page" -eq 10 ]; then
-           display_page_10
-       elif [ "$current_page" -eq 11 ]; then
-           display_page_11
-       #elif [ "$current_page" -eq 12 ]; then
-       #    display_page_12
-       #elif [ "$current_page" -eq 13 ]; then
-       #    display_page_13
-       #elif [ "$current_page" -eq 14 ]; then
-       #    display_page_14
-        fi
+        case "$current_page" in
+            1) display_page_1 ;;
+            2) display_page_2 ;;
+            3) display_page_3 ;;
+            4) display_page_4 ;;
+            5) display_page_5 ;;
+            6) display_page_6 ;;
+            7) display_page_7 ;;
+            8) display_page_8 ;;
+            9) display_page_9 ;;
+            10) display_page_10 ;;
+            11) display_page_11 ;;
+        esac
 
-        # Anzeige der Anweisung unten
+        # display instructions at bottom
         display_navigation_instructions
 
         read -rsn1 input
         case "$input" in
-            "A") ;; # Pfeil nach oben - keine Aktion
-            "B")
-                echo "🚪 Das Skript wird beendet... Vielen Dank fürs Verwenden!"
+            "A") ;; # up arrow - no action
+            "B"|$'\x18') # down arrow or Ctrl+X
+                echo "🚪 Exiting script... Thank you for using!"
                 break
                 ;;
-            "C") # Rechts
-                if [ "$current_page" -lt "$total_pages" ]; then
-                    current_page=$((current_page + 1))
-                fi
+            "C") # right arrow
+                (( current_page < total_pages )) && (( current_page++ ))
                 ;;
-            "D") # Links
-                if [ "$current_page" -gt 1 ]; then
-                    current_page=$((current_page - 1))
-                fi
+            "D") # left arrow
+                (( current_page > 1 )) && (( current_page-- ))
                 ;;
-            $'\x18') # Strg + X (ASCII 0x18)
-                echo "🚪 Das Skript wird beendet... Vielen Dank fürs Verwenden!"
-                break
-                ;;
-            *)
-                echo "⚠️  Pfeiltasten Links (←), Rechts (→) oder Runter (↓) verwenden."
-                ;;
+            *) echo "⚠️  Use left (←), right (→) or down (↓) arrow keys." ;;
         esac
     done
 }
 
-# 🛠️ Funktion zur Anzeige der Anweisungen
-function display_navigation_instructions() {
-    echo ""
-    echo "🔄 Blättern mit Links (←) / Rechts (→), Beenden mit Pfeil nach unten (↓) || Strg + X"
-    echo "📄 Dies ist Seite $current_page"
-    echo ""
+# ────────────────────────────────────────────────────────────────────────
+# ASCII Table Drawing Functions
+# ────────────────────────────────────────────────────────────────────────
+
+# Spaltenbreiten
+COL1=60
+COL2=3
+widths=($COL1 $COL2)
+
+# Draws an ASCII border line based on column widths
+draw_border(){
+  local -n w=$1
+  local line="+"
+  for b in "${w[@]}"; do
+    line+=$(printf '%*s' $((b+2)) '' | tr ' ' '-')+
+  done
+  echo "${line%+}+"
+}
+
+# Prints a row of cells, padded to the column widths
+print_row(){
+  local -n w=$1
+  shift
+  local cells=("$@")
+  local row="|"
+  for i in "${!w[@]}"; do
+    row+=" $(printf "%-${w[i]}s" "${cells[i]}") |"
+  done
+  echo "$row"
+}
+
+# ────────────────────────────────────────────────────────────────────────
+# (Dann folgen deine display_page_* Funktionen…)
+# ────────────────────────────────────────────────────────────────────────
+
+# Beispiel für display_page_1:
+function display_page_1() {
+  draw_border widths
+  print_row  widths "📚 INHALTSVERZEICHNIS" ""
+  draw_border widths
+  # … und so weiter …
 }
 #------------------------------------------------------------------------------------------------------------------------------
 # Funktion, um die zero Seite anzuzeigen
@@ -85,55 +106,48 @@ function display_navigation_instructions() {
 #}
 #------------------------------------------------------------------------------------------------------------------------------
 function display_page_1() {
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                       📚 INHALTSVERZEICHNIS                     ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📘 SEITENÜBERSICHT                                             ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📄 Seite 1: Verzeichnis-Übersicht                             ║"
-echo "║    ➡️ Systemverzeichnisse, UFW-Verzeichnisse, NGINX-Verzeichnisse ║"
-echo "║    ➡️ Log-Dateien, Benutzerverzeichnisse                        ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📄 Seite 2: Verfügbare Skripte & Wichtige Warnungen            ║"
-echo "║    ➡️ Übersicht der verfügbaren Skripte                       ║"
-echo "║    ➡️ Wichtige Logs und Warnung zu auto-ssl.sh                 ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📄 Seite 3: System-Befehle & Service-Status                   ║"
-echo "║    ➡️ Neustart, Systembefehle, Service-Status                  ║"
-echo "║    ➡️ Neustart-Befehle, Log-Befehle                            ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📄 Seite 4: NGINX-Befehle & Konfigurationshilfe               ║"
-echo "║    ➡️ Wichtige NGINX-Befehle, Verzeichnisse, Logs               ║"
-echo "║    ➡️ Dienst-Befehle, Troubleshooting                          ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📄 Seite 5: NGINX Konfigurationshilfe                         ║"
-echo "║    ➡️ Erklärungen zur nginx.conf                              ║"
-echo "║    ➡️ Blöcke, Direktiven, Server-Blöcke                       ║"
-echo "║    ➡️ Location-Matching, Praktische Beispiele                 ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📄 Seite 6: UFW-Firewall-Kommandos                            ║"
-echo "║    ➡️ Installation, Status, Regeln, Logging                    ║"
-echo "║    ➡️ NGINX-Firewall-Befehle, Protokolle                      ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📢 NAVIGATIONS-HINWEISE                                        ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 🔄 Navigation mit den Pfeiltasten:                            ║"
-echo "║    ➡️ Links (←) – Zurückblättern                               ║"
-echo "║    ➡️ Rechts (→) – Weiterblättern                             ║"
-echo "║    🔽 Pfeil nach unten (↓) – Beendet das Skript               ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📜 SYSTEMINFORMATIONEN                                         ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ Betriebssystem: $(lsb_release -d | awk -F'\t' '{print $2}')     ║"
-echo "║ Hostname: $(hostname)                                          ║"
-echo "║ Benutzer: $(whoami)                                            ║"
-echo "║ Aktuelle Zeit: $(date '+%Y-%m-%d %H:%M:%S')                    ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
+  draw_border widths
+  print_row  widths "📚 INHALTSVERZEICHNIS" ""
+  draw_border widths
+
+  print_row  widths "📘 SEITENÜBERSICHT" ""
+  draw_border widths
+
+  print_row  widths "📄 Seite 1: Verzeichnis-Übersicht" ""
+  print_row  widths "   ➡️ System-, UFW-, NGINX-Verzeichnisse" ""
+  print_row  widths "   ➡️ Log-Dateien, Benutzerverzeichnisse" ""
+  draw_border widths
+
+  print_row  widths "📄 Seite 2: Verfügbare Skripte & Warnungen" ""
+  print_row  widths "   ➡️ Verfügbare Skripte auflisten" ""
+  print_row  widths "   ➡️ Logs / auto-ssl.sh Warnung" ""
+  draw_border widths
+
+  print_row  widths "📄 Seite 3: System-Befehle & Service-Status" ""
+  print_row  widths "   ➡️ Neustart-, Log-, Status-Befehle" ""
+  draw_border widths
+
+  print_row  widths "📄 Seite 4: NGINX-Befehle & Troubleshooting" ""
+  draw_border widths
+
+  print_row  widths "📄 Seite 5: NGINX-Konfigurationshilfe" ""
+  draw_border widths
+
+  print_row  widths "📄 Seite 6: UFW-Firewall-Kommandos" ""
+  draw_border widths
+
+  echo
+  draw_border widths
+  print_row  widths "📢 NAVIGATION: ←/→ Blättern, ↓ oder Ctrl+X Beenden" ""
+  draw_border widths
+
+  echo
+  draw_border widths
+  print_row  widths "🖥️ System: $(lsb_release -d | cut -f2)" ""
+  print_row  widths "Hostname: $(hostname)" ""
+  print_row  widths "User: $(whoami)" ""
+  print_row  widths "Zeit: $(date '+%Y-%m-%d %H:%M:%S')" ""
+  draw_border widths
 }
 #------------------------------------------------------------------------------------------------------------------------------
 function display_page_2() {
