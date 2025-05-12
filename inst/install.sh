@@ -5,51 +5,51 @@ log_message() {
   local message=$1
   echo "$(date '+%Y-%m-%d %H:%M:%S') - $message" | tee -a "$LOG_FILE"
 }
-echo "💾 /var/log/installation_script.log erstellt"
+echo "💾 /var/log/installation_script.log created"
 # ────────────────────────────────────────────────────────────────────────
-# 🛠️ Dynamische Bestimmung von Server-IP und Systeminformationen
+# 🛠️ Dynamically determine server IP and system information
 # ────────────────────────────────────────────────────────────────────────
 SERVER_IP="$(hostname -I | awk '{print $1}')"
 OS_DESCRIPTION="$(lsb_release -d | awk -F'\t' '{print $2}')"
 HOSTNAME_VAR="$(hostname)"
 USER_VAR="$(whoami)"
 CURRENT_TIME="$(date '+%Y-%m-%d %H:%M:%S')"
-
-log_message "🔧 Installationsserver IP ermittelt: $SERVER_IP"
+log_message "🔧 Installation server IP determined: $SERVER_IP"
 #+-------------------------------------------------------------------------------------------------------------------------------+
-# 🛠️ Funktion zur Überprüfung, ob die Datei bereits existiert
+# 🛠️ Function to check if the file already exists
+# -------------------------------------------------------------------------------------------------------------------------------+
 check_file_exists() {
   sleep 0.1
   local file_path=$1
   if [ -f "$file_path" ]; then
-    log_message "ℹ️  Datei $file_path existiert bereits. Erstellung wird übersprungen."
+    log_message "ℹ️  File $file_path already exists. Creation skipped."
     return 1
   else
     return 0
   fi
 }
-# 🛠️ Funktion zur Verarbeitung der Skripterstellung
+# 🛠️ Function to process script creation
 process_script_creation() {
   local script_path=$1
   if [ ! -f "$script_path" ]; then
-    log_message "❌ Fehler: Skript $script_path wurde nicht gefunden."
+    log_message "❌ Error: Script $script_path not found."
     return 1
   fi
   if [ $? -ne 0 ]; then
-    log_message "❌ Fehler: Skript $script_path wurde nicht erstellt."
+    log_message "❌ Error: Script $script_path was not created."
   else
     sleep 0.5
     sudo chmod +x "$script_path"
-    log_message "🎉 Skript erfolgreich erstellt | : $script_path"
+    log_message "🎉 Script created successfully: $script_path"
   fi
 }
 #+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+
-# 🖥️ System Skriptpfade
+# 🖥️ System script paths
 SCRIPT_PATH0="/usr/local/bin/systemv.sh"
-# 🗂️ Definition der Skriptpfade
+# 🗂️ Define script paths
 SCRIPT_PATH1="/usr/local/bin/skripts.sh"
 SCRIPT_PATH2="/usr/local/bin/help.sh"
-# 📜 Help - Skriptpfade📝 💾 📂 🛠️
+# 📜 Help – script paths 📝 💾 📂 🛠️
 SCRIPT_PATH3="/usr/local/bin/upgrade.sh"
 SCRIPT_PATH4="/usr/local/bin/update_hosts.py"
 SCRIPT_PATH5="/usr/local/bin/ping_test.py"
@@ -60,123 +60,119 @@ SCRIPT_PATH9="/usr/local/bin/09.sh"
 SCRIPT_PATH10="/usr/local/bin/10.sh"
 SCRIPT_PATH11="/usr/local/bin/11.sh"
 #+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+
-# 🔄 Dynamische Umwandlung in ein Array, ungültige Pfade ignorieren
+# 🔄 Dynamically convert to an array, ignore invalid paths
 SCRIPT_PATHS=()
 for VAR in SCRIPT_PATH{0..11}; do
-    VALUE="${!VAR}" # Hole den Wert der Variablen
+    VALUE="${!VAR}" # retrieve variable value
     if [[ -n "$VALUE" && "$VALUE" != */ ]]; then
         SCRIPT_PATHS+=("$VALUE")
     fi
 done
 # ────────────────────────────────────────────────────────────────────────
-# ❓ Alte Skripte nur löschen, wenn welche vorhanden sind
+# ❓ Delete old scripts only if any exist
 # ────────────────────────────────────────────────────────────────────────
-# Sammle vorhandene Skript-Pfaddateien
+# Collect existing script files
 existing=()
 for VAR in SCRIPT_PATH{0..11}; do
     FILE="${!VAR}"
     [[ -n "$FILE" && -f "$FILE" ]] && existing+=("$FILE")
 done
 
-# Nur wenn mindestens eine Datei existiert, wird gefragt
+# Prompt only if at least one file exists
 if (( ${#existing[@]} )); then
-    read -rp "Alte Skripte löschen? [y/n] " answer
+    read -rp "Delete old scripts? [y/n] " answer
     case "${answer,,}" in
       y|yes )
-        log_message "🗑️  Lösche alte Skripte..."
+        log_message "🗑️  Deleting old scripts..."
         for FILE in "${existing[@]}"; do
             sudo rm -f "$FILE" \
-              && log_message "🗑️  Gelöscht: $FILE"
+              && log_message "🗑️  Deleted: $FILE"
         done
         ;;
       * )
-        log_message "ℹ️  Löschen übersprungen."
+        log_message "ℹ️  Deletion skipped."
         ;;
     esac
 fi
 # ────────────────────────────────────────────────────────────────────────
-# 🌐 Domains abfragen
+# 🌐 Prompt for domains
 # ────────────────────────────────────────────────────────────────────────
-read -rp "Lokale Domain (z.B. domain.local) [domain.local]: " LOCAL_DOMAIN
+read -rp "Local domain (e.g. domain.local) [domain.local]: " LOCAL_DOMAIN
 LOCAL_DOMAIN=${LOCAL_DOMAIN:-domain.local}
 
-read -rp "Globale Domain (z.B. example.com) [domain.global]: " GLOBAL_DOMAIN
+read -rp "Global domain (e.g. example.com) [domain.global]: " GLOBAL_DOMAIN
 GLOBAL_DOMAIN=${GLOBAL_DOMAIN:-domain.global}
 
-log_message "🌐 Verwende Domains: $LOCAL_DOMAIN, $GLOBAL_DOMAIN"
+log_message "🌐 Using domains: $LOCAL_DOMAIN, $GLOBAL_DOMAIN"
 #+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+
-# 🔥 Skript0 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - - - -+🔥 Skript0 erstellen 🔥
+# 🔥 Create Script0 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - - - -+🔥 Create Script0 🔥
 if check_file_exists "$SCRIPT_PATH0"; then
   sleep 0.1
-  log_message "📄 Erstelle die Datei: $SCRIPT_PATH0"
+  log_message "📄 Creating file: $SCRIPT_PATH0"
   cat <<EOF  | sudo tee "$SCRIPT_PATH0" > /dev/null
 #!/bin/bash
 # ────────────────────────────────────────────────────────────────────────
-# systemv.sh – zentrale Definition und Ausgabe Deiner System-Variablen
+# systemv.sh – central definition and display of your system variables
 # ────────────────────────────────────────────────────────────────────────
-
-# Variablen
+# Variables
 SERVER_IP="$(hostname -I | awk '{print $1}')"
 OS_DESCRIPTION="$(lsb_release -d | awk -F'\t' '{print $2}')"
 HOSTNAME_VAR="$(hostname)"
 USER_VAR="$(whoami)"
 CURRENT_TIME="$(date '+%Y-%m-%d %H:%M:%S')"
 
-# Einfaches Log-Helper
+# Simple log helper
 log_message() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"
 }
 
-# Funktion zur strukturierten Ausgabe
+# Function for structured output
 show_system_info() {
   local width=62
   local border
   border=$(printf '%*s' "$width" '' | tr ' ' '-')
 
   echo "+$border+"
-  printf "| %-62s |\n" "SYSTEMINFORMATIONEN"
+  printf "| %-62s |\n" "SYSTEM INFORMATION"
   echo "+$border+"
-  printf "| Betriebssystem: %-44s |\n" "$OS_DESCRIPTION"
-  printf "| Hostname:       %-44s |\n" "$HOSTNAME_VAR"
-  printf "| Benutzer:       %-44s |\n" "$USER_VAR"
-  printf "| Aktuelle Zeit:  %-44s |\n" "$CURRENT_TIME"
+  printf "| Operating System: %-44s |\n" "$OS_DESCRIPTION"
+  printf "| Hostname:         %-44s |\n" "$HOSTNAME_VAR"
+  printf "| User:             %-44s |\n" "$USER_VAR"
+  printf "| Current Time:     %-44s |\n" "$CURRENT_TIME"
   echo "+$border+"
 }
-
-# Nur bei direkter Ausführung: Log und Anzeige
+# Only on direct execution: log and display
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-  log_message "🔧 Installationsserver IP ermittelt: $SERVER_IP"
+  log_message "🔧 Installation server IP determined: $SERVER_IP"
   show_system_info
 fi
-
 EOF
-
   process_script_creation "$SCRIPT_PATH0"
 fi
-
-# 🔥 Skript1 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 Skript1 erstellen 🔥
+#+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+
+# 🔥 Create Script1 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 Create Script1 🔥
 if check_file_exists "$SCRIPT_PATH1"; then
   sleep 0.1
-  log_message "📄 Erstelle die Datei: $SCRIPT_PATH1"
+  log_message "📄 Creating file: $SCRIPT_PATH1"
   {
   cat << 'EOF' | sudo tee "$SCRIPT_PATH1" > /dev/null
 #!/bin/bash
 
-# Breite des äußeren Rahmens (insg. 66 Zeichen)
+# Width of the outer frame (total 66 characters)
 outer_dash=$(printf '%*s' 64 '' | tr ' ' -)
-# Breite des inneren Rahmens (insg. 62 Zeichen)
+# Width of the inner frame (total 62 characters)
 inner_dash=$(printf '%*s' 62 '' | tr ' ' -)
 
 echo
 echo "+$outer_dash+"
-echo "|                    📜 VERFÜGBARE SCRIPTS                    |"
+echo "|                    📜 AVAILABLE SCRIPTS                    |"
 echo "+$outer_dash+"
 echo "| +$inner_dash+ |"
 
 for f in /usr/local/bin/*.sh /usr/local/bin/*.py; do
   [ -f "$f" ] || continue
   FN=$(basename "$f")
-  # linksbündig auf 55 Zeichen, rest bleibt leer
+  # left-aligned on 55 characters, rest is blank
   printf '| |  📜 %-55s | |\n' "$FN"
 done
 
@@ -189,14 +185,14 @@ EOF
   process_script_creation "$SCRIPT_PATH1"
 fi
 
-# 🔥 Skript2 erstellen 🔥+- - - - - - - - - - - - -- - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 Skript2 erstellen 🔥
+# 🔥 Create Script2 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 Create Script2 🔥
 if check_file_exists "$SCRIPT_PATH2"; then
   sleep 0.1
-  log_message "📄 Erstelle die Datei: $SCRIPT_PATH2"
+  log_message "📄 Creating file: $SCRIPT_PATH2"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH2" > /dev/null
 #!/bin/bash
 
-# Funktion zur Navigation der Seiten
+# Function to navigate between pages
 function navigate_pages() {
     current_page=1
     total_pages=11
@@ -204,7 +200,7 @@ function navigate_pages() {
     while true; do
         clear
 
-        # Anzeige der Anweisung oben
+        # display instructions at top
         display_navigation_instructions
 
         if [ "$current_page" -eq 1 ]; then
@@ -237,46 +233,46 @@ function navigate_pages() {
        #    display_page_14
         fi
 
-        # Anzeige der Anweisung unten
+        # display instructions at bottom
         display_navigation_instructions
 
         read -rsn1 input
         case "$input" in
-            "A") ;; # Pfeil nach oben - keine Aktion
+            "A") ;; # up arrow - no action
             "B")
-                echo "🚪 Das Skript wird beendet... Vielen Dank fürs Verwenden!"
+                echo "🚪 Exiting script... Thank you for using!"
                 break
                 ;;
-            "C") # Rechts
+            "C") # right arrow
                 if [ "$current_page" -lt "$total_pages" ]; then
                     current_page=$((current_page + 1))
                 fi
                 ;;
-            "D") # Links
+            "D") # left arrow
                 if [ "$current_page" -gt 1 ]; then
                     current_page=$((current_page - 1))
                 fi
                 ;;
-            $'\x18') # Strg + X (ASCII 0x18)
-                echo "🚪 Das Skript wird beendet... Vielen Dank fürs Verwenden!"
+            $'\x18') # Ctrl + X
+                echo "🚪 Exiting script... Thank you for using!"
                 break
                 ;;
             *)
-                echo "⚠️  Pfeiltasten Links (←), Rechts (→) oder Runter (↓) verwenden."
+                echo "⚠️  Use left (←), right (→) or down (↓) arrow keys."
                 ;;
         esac
     done
 }
 
-# 🛠️ Funktion zur Anzeige der Anweisungen
+# 🛠️ Function to display navigation instructions
 function display_navigation_instructions() {
     echo ""
-    echo "🔄 Blättern mit Links (←) / Rechts (→), Beenden mit Pfeil nach unten (↓) || Strg + X"
-    echo "📄 Dies ist Seite $current_page"
+    echo "🔄 Navigate with left (←) / right (→), exit with down arrow (↓) || Ctrl + X"
+    echo "📄 This is page $current_page"
     echo ""
 }
 #------------------------------------------------------------------------------------------------------------------------------
-# Funktion, um die zero Seite anzuzeigen
+# Function to display the zero page
 #function display_page_0() {
 #}
 #------------------------------------------------------------------------------------------------------------------------------
@@ -784,67 +780,68 @@ EOF
   # 📝 Skript2 wurde erfolgreich verarbeitet
 fi
 
-# 🔥 SCRIPT_PATH3 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH3 erstellen 🔥
+# 🔥 Create SCRIPT_PATH3 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 Create SCRIPT_PATH3 🔥
 if check_file_exists "$SCRIPT_PATH3"; then
   sleep 0.1
-  log_message "📄 Erstelle die Datei: $SCRIPT_PATH3"
+  log_message "📄 Creating file: $SCRIPT_PATH3"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH3" > /dev/null
 #!/bin/bash
 
-# 🛠️ Funktion zur Überprüfung, ob die Pakete bereits installiert sind
+# 🛠️ Function to check if packages are already installed
 check_packages() {
   local packages=("curl" "wget" "net-tools" "at")
   local missing_packages=()
 
-  # 🔍 Überprüfe jedes Paket
+  # 🔍 Check each package
   for pkg in "${packages[@]}"; do
     if ! dpkg -l | grep -q "^ii  $pkg "; then
       missing_packages+=("$pkg")
     fi
   done
 
-  # 🔄 Installation fehlender Pakete
+  # 🔄 Install missing packages
   sleep 2
   if [ ${#missing_packages[@]} -eq 0 ]; then
-    echo "📦 Alle Pakete sind bereits installiert."
+    echo "📦 All packages are already installed."
   else
     sleep 2
-    echo "📦 Fehlende Pakete werden installiert: ${missing_packages[*]}"
+    echo "📦 Installing missing packages: ${missing_packages[*]}"
     sleep 2
     sudo apt update && sudo apt upgrade -y || {
-      echo "❌ Fehler beim System-Update."
+      echo "❌ Error during system update."
       exit 1
     }
     sudo apt install -y "${missing_packages[@]}" || {
-      echo "❌ Fehler beim Installieren der Pakete: ${missing_packages[*]}."
+      echo "❌ Error installing packages: ${missing_packages[*]}."
       exit 1
     }
   fi
 
-  # 📋 Dynamische Ausgabe der Paketübersicht als ASCII-Tabelle
+  # 📋 Dynamic display of package status as ASCII table
   echo -e "\n+----------------------------------------------+"
-  echo -e "| | ✅ | ❌ | Paketname       | Status            |"
+  echo -e "| | ✅ | ❌ | Package Name    | Status            |"
   echo -e "+------------------------------------------------+"
   for pkg in "${packages[@]}"; do
-    local status=$(dpkg -l | grep -q "^ii  $pkg " && echo "| ✅ Installiert" || echo "| ❌ Fehlt")
+    local status=$(dpkg -l | grep -q "^ii  $pkg " && echo "| ✅ Installed" || echo "| ❌ Missing")
     printf "| %-25s | %-18s |\n" "$pkg" "$status"
   done
   echo -e "+----------------------------------------------+\n"
 }
 
-# 🛠️ Rufe die Funktion zur Überprüfung und Installation auf
+# 🛠️ Invoke the package check and install function
 check_packages
 
-# 🕒 Wartezeit für den Benutzer
+# 🕒 Wait time for the user
 sleep 5
 EOF
   process_script_creation "$SCRIPT_PATH3"
-  # 📝 SCRIPT_PATH3 wurde erfolgreich verarbeitet
+  # 📝 SCRIPT_PATH3 processed successfully
 fi
-# 🔥 SCRIPT_PATH4 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH4 erstellen 🔥
+
+# 🔥 Create SCRIPT_PATH4 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 Create SCRIPT_PATH4 🔥
 if check_file_exists "$SCRIPT_PATH4"; then
   sleep 0.1
-  log_message "📄 Erstelle die Datei: $SCRIPT_PATH4"
+  log_message "📄 Creating file: $SCRIPT_PATH4"
   cat <<EOF | sudo tee "$SCRIPT_PATH4" > /dev/null
 #!/usr/bin/env python3
 import os
@@ -853,7 +850,7 @@ from datetime import datetime
 
 HOSTS_FILE = "/etc/hosts"
 
-# Ermitteln von IPs aus ENV oder (f  r IP1) per Socket-Fallback
+# Determine IPs from ENV or (for IP1) via socket fallback
 def get_ip(env_var):
     ip = os.getenv(env_var)
     if ip:
@@ -869,19 +866,19 @@ def get_ip(env_var):
 
 IP1 = get_ip("IP1")
 
-# Domains kommen aus Bash-Wrapper via ENV: LOCAL_DOMAIN, GLOBAL_DOMAIN
-# Falls nicht gesetzt, Fallback auf domain.local und domain.global
+# Domains come from Bash wrapper via ENV: LOCAL_DOMAIN, GLOBAL_DOMAIN
+# Fallback to domain.local and domain.global if unset
 local = os.getenv("LOCAL_DOMAIN", "domain.local")
 global_dom = os.getenv("GLOBAL_DOMAIN", "domain.global")
-# Jetzt fest in den Listen eingebettet:
+# Hardcoded lists:
 DOMAINS_IP1 = ["book.local"]
 DOMAINS_IP2 = ["book.com"]
 
-# Loggingfunktion
+# Logging function
 def log(msg):
     print(f"{datetime.now():%Y-%m-%d %H:%M:%S} - {msg}")
 
-# Eintr  ge hinzuf  gen, falls nicht vorhanden
+# Add entries if not present
 def add_entries(ip, domains, header):
     if not ip or not domains:
         return
@@ -894,24 +891,24 @@ def add_entries(ip, domains, header):
         for d in domains:
             if d and not any(d in line.split() for line in lines):
                 f.write(f"{ip} {d}\n")
-                log(f"Eintrag hinzugef  gt: {ip} {d}")
+                log(f"Entry added: {ip} {d}")
 
 if __name__ == "__main__":
     if os.geteuid() != 0:
-        print("Dieses Skript muss als root ausgef  hrt werden!")
+        print("This script must be run as root!")
         exit(1)
 
     add_entries(IP1, DOMAINS_IP1, "#====== LOCAL_DOMAIN ======")
     add_entries(IP1, DOMAINS_IP2, "#====== GLOBAL_DOMAIN ======")
 EOF
   process_script_creation "$SCRIPT_PATH4"
-  # 📝 SCRIPT_PATH4 wurde erfolgreich verarbeitet
+  # 📝 SCRIPT_PATH4 processed successfully
 fi
 
-# 🔥 SCRIPT_PATH5 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH5 erstellen 🔥
+# 🔥 Create SCRIPT_PATH5 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 Create SCRIPT_PATH5 🔥
 if check_file_exists "$SCRIPT_PATH5"; then
   sleep 0.1
-  log_message "📄 Erstelle die Datei: $SCRIPT_PATH5"
+  log_message "📄 Creating file: $SCRIPT_PATH5"
   cat <<EOF  | sudo tee "$SCRIPT_PATH5" > /dev/null
 #!/usr/bin/env python3
 import os
@@ -919,7 +916,7 @@ import socket
 import subprocess
 from datetime import datetime
 
-# 1) Versuche ENV-Variable, 2) Fallback auf Socket-Abfrage
+# 1) Try ENV variable, 2) fallback to socket query
 def get_server_ip():
     if ip := os.getenv("SERVER_IP"):
         return ip
@@ -931,9 +928,9 @@ def get_server_ip():
     finally:
         s.close()
 
-# Übergebe Bash-Variable als ENV
+# Pass Bash variable as ENV
 SERVER_IP = get_server_ip()
-# Präfix aus den ersten drei Oktetten
+# Prefix from first three octets
 PREFIX = ".".join(SERVER_IP.split('.')[:3])
 
 HOSTS = {
@@ -960,65 +957,67 @@ def ping_host(host):
         return False
 
 def main():
-    print("==== Ping-Test starten ====")
-    print(f"Datum: {datetime.now():%Y-%m-%d %H:%M:%S}\\n")
+    print("==== Starting Ping Test ====")
+    print(f"Date: {datetime.now():%Y-%m-%d %H:%M:%S}\\n")
     failed = []
     for host, desc in HOSTS.items():
-        print(f"Pinge {host} ({desc})…")
-        (print(f"{host} ({desc}) ist erreichbar ✅")
-         if ping_host(host)
-         else (failed.append(f"{host} ({desc})") or print(f"{host} ({desc}) ist nicht erreichbar ❌")))
+        print(f"Pinging {host} ({desc})…")
+        if ping_host(host):
+            print(f"{host} ({desc}) is reachable ✅")
+        else:
+            failed.append(f"{host} ({desc})")
+            print(f"{host} ({desc}) is unreachable ❌")
         print()
-    print("==== Ping-Test abgeschlossen ====")
+    print("==== Ping Test Completed ====")
     if failed:
-        print("==== Fehlgeschlagene Hosts ====")
+        print("==== Failed Hosts ====")
         print(*failed, sep="\n")
     else:
-        print("Alle Hosts sind erreichbar ✅")
+        print("All hosts are reachable ✅")
 
 if __name__ == "__main__":
     main()
 EOF
 
-# Umgebungsvariable für Python setzen
-export SERVER_IP
+  # Export ENV for Python
+  export SERVER_IP
 
   process_script_creation "$SCRIPT_PATH5"
-  # 📝 SCRIPT_PATH5 wurde erfolgreich verarbeitet
+  # 📝 SCRIPT_PATH5 processed successfully
 fi
 
-# 🔥 SCRIPT_PATH6 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH6 erstellen 🔥
+# 🔥 Create SCRIPT_PATH6 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 Create SCRIPT_PATH6 🔥
 if check_file_exists "$SCRIPT_PATH6"; then
   sleep 0.1
-  log_message "📄 Erstelle die Datei: $SCRIPT_PATH6"
+  log_message "📄 Creating file: $SCRIPT_PATH6"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH6" > /dev/null
 #!/bin/bash
 
-# Definition der log_message-Funktion
+# Definition of the log_message function
 log_message() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
 }
 
-# Anzeige des Inhalts der Datei /etc/hosts
-echo "📁 Inhalt der Datei /etc/hosts:"
+# Display contents of /etc/hosts file
+echo "📁 Contents of /etc/hosts:"
 echo "-----------------------------"
 cat /etc/hosts
 echo "+----------------------------------------------------+"
 EOF
   process_script_creation "$SCRIPT_PATH6"
-  # 📝 SCRIPT_PATH6 wurde erfolgreich verarbeitet
+  # 📝 SCRIPT_PATH6 processed successfully
 fi
-# 🔥 SCRIPT_PATH7 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH7 erstellen 🔥
+# 🔥 Create SCRIPT_PATH7 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 Create SCRIPT_PATH7 🔥
 if check_file_exists "$SCRIPT_PATH7"; then
   sleep 0.1
-  log_message "📄 Erstelle die Datei: $SCRIPT_PATH7"
-cat <<EOF | sudo tee "$SCRIPT_PATH7" > /dev/null
+  log_message "📄 Creating file: $SCRIPT_PATH7"
+  cat << 'EOF' | sudo tee "$SCRIPT_PATH7" > /dev/null
 #!/bin/bash
 log_message() {
   echo "\$(date '+%Y-%m-%d %H:%M:%S') - \$1"
 }
 
-# Dynamische Variablen (müssen aus Deinem Wrapper kommen)
+# Dynamic variables (must come from your wrapper):
 # SERVER_IP, LOCAL_DOMAIN, GLOBAL_DOMAIN
 
 URLS=(
@@ -1042,12 +1041,12 @@ check_url() {
   RESULTS+=( "\$url|\$mark" )
 }
 
-# literal-Loop: Dollar maskiert, wird erst im Skript ausgeführt
+# Literal loop: dollar signs are escaped, evaluated in the script
 for url in "\${URLS[@]}"; do
   check_url "\$url"
 done
 
-# Ausgabe-Tabelle
+# Output table
 printf '+-%-60s-+-%-3s-+\n' "------------------------------------------------------------" "---"
 printf '| %-60s | %-3s |\n' "URL" ""
 printf '+-%-60s-+-%-3s-+\n' "============================================================" "==="
@@ -1058,61 +1057,65 @@ done
 printf '+-%-60s-+-%-3s-+\n' "------------------------------------------------------------" "---"
 EOF
   process_script_creation "$SCRIPT_PATH7"
-  # 📝 SCRIPT_PATH7 wurde erfolgreich verarbeitet
+  # 📝 SCRIPT_PATH7 processed successfully
 fi
-# 🔥 SCRIPT_PATH8 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH8 erstellen 🔥
+
+# 🔥 Create SCRIPT_PATH8 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 Create SCRIPT_PATH8 🔥
 if check_file_exists "$SCRIPT_PATH8"; then
   sleep 0.1
-  log_message "📄 Erstelle die Datei: $SCRIPT_PATH8"
+  log_message "📄 Creating file: $SCRIPT_PATH8"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH8" > /dev/null
-# 🎉 Platzhalter
+# 🎉 Placeholder
 sleep 1
-echo "🎉 Installation erfolgreich abgeschlossen."
+echo "🎉 Installation completed successfully."
 EOF
   process_script_creation "$SCRIPT_PATH8"
-  # 📝 SCRIPT_PATH8 wurde erfolgreich verarbeitet
+  # 📝 SCRIPT_PATH8 processed successfully
 fi
-# 🔥 SCRIPT_PATH9 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH9 erstellen 🔥
+
+# 🔥 Create SCRIPT_PATH9 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 Create SCRIPT_PATH9 🔥
 if check_file_exists "$SCRIPT_PATH9"; then
   sleep 0.1
-  log_message "📄 Erstelle die Datei: $SCRIPT_PATH9"
+  log_message "📄 Creating file: $SCRIPT_PATH9"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH9" > /dev/null
-# 🎉 Platzhalter
+# 🎉 Placeholder
 sleep 1
-echo "🎉 Installation erfolgreich abgeschlossen."
+echo "🎉 Installation completed successfully."
 EOF
   process_script_creation "$SCRIPT_PATH9"
-  # 📝 SCRIPT_PATH9 wurde erfolgreich verarbeitet
+  # 📝 SCRIPT_PATH9 processed successfully
 fi
-# 🔥 SCRIPT_PATH10 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH10 erstellen 🔥
+
+# 🔥 Create SCRIPT_PATH10 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 Create SCRIPT_PATH10 🔥
 if check_file_exists "$SCRIPT_PATH10"; then
   sleep 0.1
-  log_message "📄 Erstelle die Datei: $SCRIPT_PATH10"
+  log_message "📄 Creating file: $SCRIPT_PATH10"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH10" > /dev/null
-# 🎉 Platzhalter
+# 🎉 Placeholder
 sleep 1
-echo "🎉 Installation erfolgreich abgeschlossen."
+echo "🎉 Installation completed successfully."
 EOF
   process_script_creation "$SCRIPT_PATH10"
-  # 📝 SCRIPT_PATH10 wurde erfolgreich verarbeitet
+  # 📝 SCRIPT_PATH10 processed successfully
 fi
-# 🔥 SCRIPT_PATH11 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 SCRIPT_PATH11 erstellen 🔥
+
+# 🔥 Create SCRIPT_PATH11 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 Create SCRIPT_PATH11 🔥
 if check_file_exists "$SCRIPT_PATH11"; then
   sleep 0.1
-  log_message "📄 Erstelle die Datei: $SCRIPT_PATH11"
+  log_message "📄 Creating file: $SCRIPT_PATH11"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH11" > /dev/null
-# 🎉 Platzhalter
+# 🎉 Placeholder
 sleep 1
-echo "🎉 Installation erfolgreich abgeschlossen."
+echo "🎉 Installation completed successfully."
 EOF
   process_script_creation "$SCRIPT_PATH11"
-  # 📝 SCRIPT_PATH11 wurde erfolgreich verarbeitet
+  # 📝 SCRIPT_PATH11 processed successfully
 fi
 
 # 🔥 Skript 999 erstellen 🔥+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+🔥 Skript 999 erstellen 🔥
 #if check_file_exists "$SCRIPT_PATH999"; then
 #  sleep 0.5
-#  log_message "📄 Erstelle die Datei: $SCRIPT_PATH999"
+#  log_message "📄 Creating file: $SCRIPT_PATH999"
 #  cat << 'EOF' | sudo tee "$SCRIPT_PATH999" > /dev/null
 #[📝 Skript 999 einfügen 📝]
 #EOF
@@ -1123,131 +1126,131 @@ fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
 #+----------------------------------------------------------------------------------------------------------------------------------+
 #+----------------------------------------------------------------------------------------------------------------------------------+
-# ⚙️ Führe upgrade.sh aus | SCRIPT_PATH3="/usr/local/bin/upgrade.sh"
+# ⚙️ Execute upgrade.sh | SCRIPT_PATH3="/usr/local/bin/upgrade.sh"
 sudo chmod +x /usr/local/bin/system_vars.sh
 
 #+----------------------------------------------------------------------------------------------------------------------------------+
-# ⚙️ Setze Ausführungsrechte und führe systemv.sh aus | SCRIPT_PATH0
+# ⚙️ Set execute permissions and run systemv.sh | SCRIPT_PATH0
 sleep 1
 if [ -f "$SCRIPT_PATH0" ]; then
     sudo chmod +x "$SCRIPT_PATH0"
-    log_message "🔧 Ausführungsrechte für $(basename "$SCRIPT_PATH0") gesetzt."
+    log_message "🔧 Execute permission set for $(basename "$SCRIPT_PATH0")."
     sleep 1
-    log_message "🖥️ Zeige Systeminformationen"
+    log_message "🖥️ Displaying system information"
     if sudo bash "$SCRIPT_PATH0" | tee -a /var/log/installation_script.log; then
-        log_message "🎉 $(basename "$SCRIPT_PATH0") erfolgreich ausgeführt."
+        log_message "🎉 $(basename "$SCRIPT_PATH0") ran successfully."
     else
-        log_message "❌ Fehler beim Ausführen von $(basename "$SCRIPT_PATH0")"
+        log_message "❌ Error running $(basename "$SCRIPT_PATH0")."
         exit 1
     fi
 else
-    log_message "❌ $(basename "$SCRIPT_PATH0") nicht gefunden."
+    log_message "❌ $(basename "$SCRIPT_PATH0") not found."
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
-# ⚙️ Führe upgrade.sh aus | SCRIPT_PATH3="/usr/local/bin/upgrade.sh"
+# ⚙️ Run upgrade.sh | SCRIPT_PATH3="/usr/local/bin/upgrade.sh"
 sleep 1
-log_message "🛠️ Starte System-Upgrade"
+log_message "🛠️ Starting system upgrade"
 if [ -f "$SCRIPT_PATH3" ]; then
     sleep 1
-    log_message "✅ upgrade.sh gefunden. Starte Skript."
+    log_message "✅ upgrade.sh found. Running script."
     if sudo bash "$SCRIPT_PATH3" | tee -a /var/log/installation_script.log; then
-        log_message "🎉 upgrade.sh erfolgreich ausgeführt."
+        log_message "🎉 upgrade.sh completed successfully."
     else
-        log_message "❌ Fehler beim Ausführen von upgrade.sh"
+        log_message "❌ Error running upgrade.sh."
         exit 1
     fi
 else
-    log_message "❌ upgrade.sh nicht gefunden."
+    log_message "❌ upgrade.sh not found."
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
-# ⚙️ Führe update_hosts.py aus | SCRIPT_PATH4="/usr/local/bin/update_hosts.py"
+# ⚙️ Run update_hosts.py | SCRIPT_PATH4="/usr/local/bin/update_hosts.py"
 sleep 1
-log_message "🛠️ Aktualisiere die hosts"
+log_message "🛠️ Updating hosts file"
 if [ -f "$SCRIPT_PATH4" ]; then
     sleep 1
-    log_message "✅ update_hosts.py gefunden. Starte Skript."
+    log_message "✅ update_hosts.py found. Running script."
     if sudo python3 "$SCRIPT_PATH4" | tee -a /var/log/installation_script.log; then
-        log_message "🎉 update_hosts.py erfolgreich ausgeführt."
+        log_message "🎉 update_hosts.py completed successfully."
     else
-        log_message "❌ Fehler beim Ausführen von update_hosts.py"
+        log_message "❌ Error running update_hosts.py."
         exit 1
     fi
 else
-    log_message "❌ update_hosts.py nicht gefunden."
+    log_message "❌ update_hosts.py not found."
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
-# ⚙️ Führe ping_test.py aus | SCRIPT_PATH5="/usr/local/bin/ping_test.py"
+# ⚙️ Run ping_test.py | SCRIPT_PATH5="/usr/local/bin/ping_test.py"
 sleep 1
-log_message "🛠️ Prüfe erforderliche Verbindungen"
+log_message "🛠️ Checking required connections"
 if [ -f "$SCRIPT_PATH5" ]; then
     sleep 1
-    log_message "✅ ping_test.py gefunden. Starte Skript."
-    # Unbuffered Python-Output, Echtzeit im Terminal und ins Log
+    log_message "✅ ping_test.py found. Running script."
+    # Unbuffered Python output, real-time to terminal and log
     sudo PYTHONUNBUFFERED=1 python3 "$SCRIPT_PATH5" 2>&1 | tee -a /var/log/installation_script.log
     RET=${PIPESTATUS[0]}
     if [ "$RET" -eq 0 ]; then
-        log_message "🎉 ping_test.py erfolgreich ausgeführt."
+        log_message "🎉 ping_test.py completed successfully."
     else
-        log_message "❌ Fehler beim Ausführen von ping_test.py (Exit-Code: $RET)"
+        log_message "❌ Error running ping_test.py (Exit code: $RET)."
         exit 1
     fi
 else
-    log_message "❌ ping_test.py nicht gefunden."
+    log_message "❌ ping_test.py not found."
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
-# 🛠️ Eintrag in crontab vornehmen
+# 🛠️ Add entry to crontab
 sleep 1
-log_message "🔄 Füge Eintrag in crontab hinzu, wenn noch nicht vorhanden."
+log_message "🔄 Adding entry to crontab if missing."
 if ! crontab -l | grep -q '/usr/local/bin/update_hosts.py'; then
   (crontab -l 2>/dev/null; echo "@reboot /usr/local/bin/update_hosts.py") | crontab -
   sleep 1
-  log_message "🎉 Eintrag in crontab erfolgreich hinzugefügt."
+  log_message "🎉 Crontab entry added successfully."
 else
   sleep 2
-  log_message "ℹ️ Eintrag in crontab ist bereits vorhanden."
+  log_message "ℹ️ Crontab entry already exists."
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
-# 📜 Eintrag in .bashrc vornehmen
+# 📜 Add entry to .bashrc
 sleep 0.5
-log_message "🔄 Füge Eintrag in .bashrc hinzu, wenn noch nicht vorhanden."
+log_message "🔄 Adding entry to ~/.bashrc if missing."
 if ! grep -q 'sudo /usr/local/bin/cat_hosts.sh' ~/.bashrc; then
   cat << 'EOF' | tee -a ~/.bashrc > /dev/null
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# 🛠️ Automatische Skriptausführung bei SSH-Login
-if [ -n "$SSH_CONNECTION" ]; then  # Prüft, ob eine SSH-Verbindung besteht
-    sudo /usr/local/bin/cat_hosts.sh  # Führt Skript cat_hosts.sh aus
-    if [ $? -eq 0 ]; then  # Überprüft, ob cat_hosts.sh erfolgreich abgeschlossen (Exit-Code 0)
-        sudo /usr/local/bin/skripts.sh  # Führt skripts.sh aus
+# 🛠️ Auto-run scripts on SSH login
+if [ -n "$SSH_CONNECTION" ]; then  # Check if SSH connection exists
+    sudo /usr/local/bin/cat_hosts.sh  # Run cat_hosts.sh
+    if [ $? -eq 0 ]; then  # If cat_hosts.sh succeeded (exit code 0)
+        sudo /usr/local/bin/skripts.sh  # Run skripts.sh
     else
-        echo "❌ cat_hosts.sh fehlgeschlagen. skripts.sh wird nicht ausgeführt."
+        echo "❌ cat_hosts.sh failed. skripts.sh will not run."
     fi
 fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 EOF
   sleep 1
-  log_message "🎉 Eintrag in .bashrc erfolgreich hinzugefügt."
+  log_message "🎉 Entry added to ~/.bashrc successfully."
 else
   sleep 2
-  log_message "ℹ️ Eintrag in .bashrc ist bereits vorhanden."
+  log_message "ℹ️ ~/.bashrc entry already exists."
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
-# ⚙️ Führe check_urls.sh aus | SCRIPT_PATH11="/usr/local/bin/check_urls.sh"
+# ⚙️ Run check_urls.sh | SCRIPT_PATH11="/usr/local/bin/check_urls.sh"
 sleep 1
-log_message "🛠️ Überprüfe URLs"
+log_message "🛠️ Verifying URLs"
 if [ -f "$SCRIPT_PATH11" ]; then
     sleep 1
-    log_message "✅ check_urls.sh gefunden. Starte Skript."
+    log_message "✅ check_urls.sh found. Running script."
     if sudo bash "$SCRIPT_PATH11" | tee -a /var/log/installation_script.log; then
-        log_message "🎉 check_urls.sh erfolgreich ausgeführt."
+        log_message "🎉 check_urls.sh completed successfully."
     else
-        log_message "❌ Fehler beim Ausführen von check_urls.sh"
+        log_message "❌ Error running check_urls.sh."
         exit 1
     fi
 else
-    log_message "❌ check_urls.sh nicht gefunden."
+    log_message "❌ check_urls.sh not found."
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
-# Neustart des Systems
-log_message "🔄 Starte das System neu."
+# Reboot the system
+log_message "🔄 Rebooting the system."
 sleep 5
 sudo reboot
