@@ -1011,7 +1011,7 @@ fi
 if check_file_exists "$SCRIPT_PATH7"; then
   sleep 0.1
   log_message "📄 Creating file: $SCRIPT_PATH7"
-  cat << 'EOF' | sudo tee "$SCRIPT_PATH7" > /dev/null
+cat <<EOF | sudo tee "$SCRIPT_PATH7" > /dev/null
 #!/bin/bash
 log_message() {
   echo "\$(date '+%Y-%m-%d %H:%M:%S') - \$1"
