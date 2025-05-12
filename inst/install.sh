@@ -1253,4 +1253,4 @@ fi
 # Reboot the system
 log_message "🔄 Rebooting the system."
 sleep 5
-sudo reboot
+#sudo reboot
