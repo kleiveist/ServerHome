@@ -1,9 +1,36 @@
 #!/bin/bash
+# ────────────────────────────────────────────────────────────────────────
+# ASCII Table Drawing Functions
+# ────────────────────────────────────────────────────────────────────────
 
+# Spaltenbreite (nur eine Spalte)
+COL1=68
+widths=($COL1)
+
+# Draws an ASCII border line based on column widths
+draw_border(){
+  local -n w=$1
+  local line="+"
+  for b in "${w[@]}"; do
+    line+=$(printf '%*s' $((b+2)) '' | tr ' ' '-')+
+  done
+  echo "${line%+}+"
+}
+
+# Prints a row of cells, padded to the column widths
+print_row(){
+  local -n w=$1
+  shift
+  local cells=("$@")
+  local row="|"
+  for i in "${!w[@]}"; do
+    row+=" $(printf "%-${w[i]}s" "${cells[i]}") |"
+  done
+  echo "$row"
+}
 # ────────────────────────────────────────────────────────────────────────
 # Page Navigation Functions
 # ────────────────────────────────────────────────────────────────────────
-
 # 🛠️ Function to display navigation instructions
 function display_navigation_instructions() {
     echo ""
@@ -11,10 +38,9 @@ function display_navigation_instructions() {
     echo "📄 This is page $current_page"
     echo ""
 }
-
 # Function to navigate between pages
 function navigate_pages() {
-    current_page=1
+    current_page=0
     total_pages=11
 
     while true; do
@@ -24,6 +50,7 @@ function navigate_pages() {
         display_navigation_instructions
 
         case "$current_page" in
+            0) display_page_0 ;;
             1) display_page_1 ;;
             2) display_page_2 ;;
             3) display_page_3 ;;
@@ -51,102 +78,60 @@ function navigate_pages() {
                 (( current_page < total_pages )) && (( current_page++ ))
                 ;;
             "D") # left arrow
-                (( current_page > 1 )) && (( current_page-- ))
+                (( current_page > 0 )) && (( current_page-- ))
                 ;;
             *) echo "⚠️  Use left (←), right (→) or down (↓) arrow keys." ;;
         esac
     done
 }
-
-# ────────────────────────────────────────────────────────────────────────
-# ASCII Table Drawing Functions
-# ────────────────────────────────────────────────────────────────────────
-
-# Spaltenbreiten
-COL1=60
-COL2=3
-widths=($COL1 $COL2)
-
-# Draws an ASCII border line based on column widths
-draw_border(){
-  local -n w=$1
-  local line="+"
-  for b in "${w[@]}"; do
-    line+=$(printf '%*s' $((b+2)) '' | tr ' ' '-')+
-  done
-  echo "${line%+}+"
-}
-
-# Prints a row of cells, padded to the column widths
-print_row(){
-  local -n w=$1
-  shift
-  local cells=("$@")
-  local row="|"
-  for i in "${!w[@]}"; do
-    row+=" $(printf "%-${w[i]}s" "${cells[i]}") |"
-  done
-  echo "$row"
-}
-
 # ────────────────────────────────────────────────────────────────────────
 # (Dann folgen deine display_page_* Funktionen…)
 # ────────────────────────────────────────────────────────────────────────
-
-# Beispiel für display_page_1:
+function display_page_0() {
+  echo
+  draw_border widths
+  print_row  widths "🖥️ System: $(lsb_release -d | cut -f2)"
+  print_row  widths "Hostname: $(hostname)"
+  print_row  widths "User: $(whoami)"
+  print_row  widths "Time: $(date '+%Y-%m-%d %H:%M:%S')"
+  draw_border widths
+}
+#------------------------------------------------------------------------------------------------------------------------------
 function display_page_1() {
+
   draw_border widths
   print_row  widths "📚 INHALTSVERZEICHNIS" ""
   draw_border widths
   # … und so weiter …
-}
-#------------------------------------------------------------------------------------------------------------------------------
-# Funktion, um die zero Seite anzuzeigen
-#function display_page_0() {
-#}
-#------------------------------------------------------------------------------------------------------------------------------
-function display_page_1() {
+
   draw_border widths
-  print_row  widths "📚 INHALTSVERZEICHNIS" ""
+  print_row  widths "📚 TABLE OF CONTENTS"
   draw_border widths
 
-  print_row  widths "📘 SEITENÜBERSICHT" ""
+  print_row  widths "📘 PAGE OVERVIEW"
   draw_border widths
 
-  print_row  widths "📄 Seite 1: Verzeichnis-Übersicht" ""
-  print_row  widths "   ➡️ System-, UFW-, NGINX-Verzeichnisse" ""
-  print_row  widths "   ➡️ Log-Dateien, Benutzerverzeichnisse" ""
+  print_row  widths "📄 Page 1: Directory Overview"
+  print_row  widths "   ➡️ System, UFW, NGINX directories"
+  print_row  widths "   ➡️ Log files, User home directories"
   draw_border widths
 
-  print_row  widths "📄 Seite 2: Verfügbare Skripte & Warnungen" ""
-  print_row  widths "   ➡️ Verfügbare Skripte auflisten" ""
-  print_row  widths "   ➡️ Logs / auto-ssl.sh Warnung" ""
+  print_row  widths "📄 Page 2: Available Scripts & Warnings"
+  print_row  widths "   ➡️ List installed scripts"
+  print_row  widths "   ➡️ Important logs / auto-ssl.sh warning"
   draw_border widths
 
-  print_row  widths "📄 Seite 3: System-Befehle & Service-Status" ""
-  print_row  widths "   ➡️ Neustart-, Log-, Status-Befehle" ""
+  print_row  widths "📄 Page 3: System Commands & Service Status"
+  print_row  widths "   ➡️ Reboot, logs, status checks"
   draw_border widths
 
-  print_row  widths "📄 Seite 4: NGINX-Befehle & Troubleshooting" ""
+  print_row  widths "📄 Page 4: NGINX Commands & Troubleshooting"
   draw_border widths
 
-  print_row  widths "📄 Seite 5: NGINX-Konfigurationshilfe" ""
+  print_row  widths "📄 Page 5: NGINX Configuration Guide"
   draw_border widths
 
-  print_row  widths "📄 Seite 6: UFW-Firewall-Kommandos" ""
-  draw_border widths
-
-  echo
-  draw_border widths
-  print_row  widths "📢 NAVIGATION: ←/→ Blättern, ↓ oder Ctrl+X Beenden" ""
-  draw_border widths
-
-  echo
-  draw_border widths
-  print_row  widths "🖥️ System: $(lsb_release -d | cut -f2)" ""
-  print_row  widths "Hostname: $(hostname)" ""
-  print_row  widths "User: $(whoami)" ""
-  print_row  widths "Zeit: $(date '+%Y-%m-%d %H:%M:%S')" ""
+  print_row  widths "📄 Page 6: UFW Firewall Commands"
   draw_border widths
 }
 #------------------------------------------------------------------------------------------------------------------------------
