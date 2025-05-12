@@ -191,10 +191,54 @@ if check_file_exists "$SCRIPT_PATH2"; then
   log_message "📄 Creating file: $SCRIPT_PATH2"
   cat << 'EOF' | sudo tee "$SCRIPT_PATH2" > /dev/null
 #!/bin/bash
+# ────────────────────────────────────────────────────────────────────────
+# ASCII Table Drawing Functions
+# ────────────────────────────────────────────────────────────────────────
 
+# Spaltenbreite (nur eine Spalte)
+COL1=68
+widths=($COL1)
+
+# Draws a headline separator line using '='
+function draw_headline() {
+  # Länge = Spaltenbreite + 2 (für die beiden Leerzeichen links/rechts)
+  local length=$((COL1 + 2))
+  printf '%*s\n' "$length" '' | tr ' ' '='
+}
+
+# Draws an ASCII border line based on column widths
+draw_border(){
+  local -n w=$1
+  local line="+"
+  for b in "${w[@]}"; do
+    line+=$(printf '%*s' $((b+2)) '' | tr ' ' '-')+
+  done
+  echo "${line%+}+"
+}
+
+print_row(){
+  local -n w=$1
+  shift
+  local cells=("$@")
+  local row="|"
+  for i in "${!w[@]}"; do
+    row+=" $(printf "%-${w[i]}s" "${cells[i]}") "
+  done
+  echo "$row"
+}
+# ────────────────────────────────────────────────────────────────────────
+# Page Navigation Functions
+# ────────────────────────────────────────────────────────────────────────
+# 🛠️ Function to display navigation instructions
+function display_navigation_instructions() {
+    echo ""
+    echo "🔄 Navigate with left (←) / right (→), exit with down arrow (↓) || Ctrl + X"
+    echo "📄 This is page $current_page"
+    echo ""
+}
 # Function to navigate between pages
 function navigate_pages() {
-    current_page=1
+    current_page=0
     total_pages=11
 
     while true; do
@@ -203,35 +247,20 @@ function navigate_pages() {
         # display instructions at top
         display_navigation_instructions
 
-        if [ "$current_page" -eq 1 ]; then
-            display_page_1
-        elif [ "$current_page" -eq 2 ]; then
-            display_page_2
-        elif [ "$current_page" -eq 3 ]; then
-            display_page_3
-        elif [ "$current_page" -eq 4 ]; then
-            display_page_4
-        elif [ "$current_page" -eq 5 ]; then
-            display_page_5
-        elif [ "$current_page" -eq 6 ]; then
-            display_page_6
-        elif [ "$current_page" -eq 7 ]; then
-            display_page_7
-        elif [ "$current_page" -eq 8 ]; then
-            display_page_8
-        elif [ "$current_page" -eq 9 ]; then
-            display_page_9
-       elif [ "$current_page" -eq 10 ]; then
-           display_page_10
-       elif [ "$current_page" -eq 11 ]; then
-           display_page_11
-       #elif [ "$current_page" -eq 12 ]; then
-       #    display_page_12
-       #elif [ "$current_page" -eq 13 ]; then
-       #    display_page_13
-       #elif [ "$current_page" -eq 14 ]; then
-       #    display_page_14
-        fi
+        case "$current_page" in
+            0) display_page_0 ;;
+            1) display_page_1 ;;
+            2) display_page_2 ;;
+            3) display_page_3 ;;
+            4) display_page_4 ;;
+            5) display_page_5 ;;
+            6) display_page_6 ;;
+            7) display_page_7 ;;
+            8) display_page_8 ;;
+            9) display_page_9 ;;
+            10) display_page_10 ;;
+            11) display_page_11 ;;
+        esac
 
         # display instructions at bottom
         display_navigation_instructions
@@ -239,510 +268,546 @@ function navigate_pages() {
         read -rsn1 input
         case "$input" in
             "A") ;; # up arrow - no action
-            "B")
+            "B"|$'\x18') # down arrow or Ctrl+X
                 echo "🚪 Exiting script... Thank you for using!"
                 break
                 ;;
             "C") # right arrow
-                if [ "$current_page" -lt "$total_pages" ]; then
-                    current_page=$((current_page + 1))
-                fi
+                (( current_page < total_pages )) && (( current_page++ ))
                 ;;
             "D") # left arrow
-                if [ "$current_page" -gt 1 ]; then
-                    current_page=$((current_page - 1))
-                fi
+                (( current_page > 0 )) && (( current_page-- ))
                 ;;
-            $'\x18') # Ctrl + X
-                echo "🚪 Exiting script... Thank you for using!"
-                break
-                ;;
-            *)
-                echo "⚠️  Use left (←), right (→) or down (↓) arrow keys."
-                ;;
+            *) echo "⚠️  Use left (←), right (→) or down (↓) arrow keys." ;;
         esac
     done
 }
-
-# 🛠️ Function to display navigation instructions
-function display_navigation_instructions() {
-    echo ""
-    echo "🔄 Navigate with left (←) / right (→), exit with down arrow (↓) || Ctrl + X"
-    echo "📄 This is page $current_page"
-    echo ""
+# ────────────────────────────────────────────────────────────────────────
+# (Dann folgen deine display_page_* Funktionen…)
+# ────────────────────────────────────────────────────────────────────────
+function display_page_0() {
+  echo
+  draw_border widths
+  print_row  widths "🖥️ System: $(lsb_release -d | cut -f2)"
+  print_row  widths "Hostname: $(hostname)"
+  print_row  widths "User: $(whoami)"
+  print_row  widths "Time: $(date '+%Y-%m-%d %H:%M:%S')"
+  draw_border widths
 }
 #------------------------------------------------------------------------------------------------------------------------------
-# Function to display the zero page
-#function display_page_0() {
-#}
-#------------------------------------------------------------------------------------------------------------------------------
 function display_page_1() {
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                       📚 INHALTSVERZEICHNIS                     ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📘 SEITENÜBERSICHT                                             ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📄 Seite 1: Verzeichnis-Übersicht                             ║"
-echo "║    ➡️ Systemverzeichnisse, UFW-Verzeichnisse, NGINX-Verzeichnisse ║"
-echo "║    ➡️ Log-Dateien, Benutzerverzeichnisse                        ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📄 Seite 2: Verfügbare Skripte & Wichtige Warnungen            ║"
-echo "║    ➡️ Übersicht der verfügbaren Skripte                       ║"
-echo "║    ➡️ Wichtige Logs und Warnung zu auto-ssl.sh                 ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📄 Seite 3: System-Befehle & Service-Status                   ║"
-echo "║    ➡️ Neustart, Systembefehle, Service-Status                  ║"
-echo "║    ➡️ Neustart-Befehle, Log-Befehle                            ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📄 Seite 4: NGINX-Befehle & Konfigurationshilfe               ║"
-echo "║    ➡️ Wichtige NGINX-Befehle, Verzeichnisse, Logs               ║"
-echo "║    ➡️ Dienst-Befehle, Troubleshooting                          ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📄 Seite 5: NGINX Konfigurationshilfe                         ║"
-echo "║    ➡️ Erklärungen zur nginx.conf                              ║"
-echo "║    ➡️ Blöcke, Direktiven, Server-Blöcke                       ║"
-echo "║    ➡️ Location-Matching, Praktische Beispiele                 ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📄 Seite 6: UFW-Firewall-Kommandos                            ║"
-echo "║    ➡️ Installation, Status, Regeln, Logging                    ║"
-echo "║    ➡️ NGINX-Firewall-Befehle, Protokolle                      ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📢 NAVIGATIONS-HINWEISE                                        ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 🔄 Navigation mit den Pfeiltasten:                            ║"
-echo "║    ➡️ Links (←) – Zurückblättern                               ║"
-echo "║    ➡️ Rechts (→) – Weiterblättern                             ║"
-echo "║    🔽 Pfeil nach unten (↓) – Beendet das Skript               ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📜 SYSTEMINFORMATIONEN                                         ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ Betriebssystem: $(lsb_release -d | awk -F'\t' '{print $2}')     ║"
-echo "║ Hostname: $(hostname)                                          ║"
-echo "║ Benutzer: $(whoami)                                            ║"
-echo "║ Aktuelle Zeit: $(date '+%Y-%m-%d %H:%M:%S')                    ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
+
+  draw_border widths
+  print_row  widths "📚 INHALTSVERZEICHNIS" ""
+  draw_border widths
+  # … und so weiter …
+
+  draw_border widths
+  print_row  widths "📚 TABLE OF CONTENTS"
+  draw_border widths
+
+  print_row  widths "📘 PAGE OVERVIEW"
+  draw_border widths
+
+  print_row  widths "📄 Page 1: Directory Overview"
+  print_row  widths "   ➡️ System, UFW, NGINX directories"
+  print_row  widths "   ➡️ Log files, User home directories"
+  draw_border widths
+
+  print_row  widths "📄 Page 2: Available Scripts & Warnings"
+  print_row  widths "   ➡️ List installed scripts"
+  print_row  widths "   ➡️ Important logs / auto-ssl.sh warning"
+  draw_border widths
+
+  print_row  widths "📄 Page 3: System Commands & Service Status"
+  print_row  widths "   ➡️ Reboot, logs, status checks"
+  draw_border widths
+
+  print_row  widths "📄 Page 4: NGINX Commands & Troubleshooting"
+  draw_border widths
+
+  print_row  widths "📄 Page 5: NGINX Configuration Guide"
+  draw_border widths
+
+  print_row  widths "📄 Page 6: UFW Firewall Commands"
+  draw_border widths
 }
 #------------------------------------------------------------------------------------------------------------------------------
 function display_page_2() {
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                        💾 LOG-HINWEISE                         ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ ┌────────────────────────────────────────────────────────────┐ ║"
-echo "║ │ 💾 cat /var/log/installation_script.log                    │ ║"
-echo "║ └────────────────────────────────────────────────────────────┘ ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                        📜 VERFÜGBARE SCRIPTS                   ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ ┌────────────────────────────────────────────────────────────┐ ║"
+  echo
+  # Headline für wichtigen Hinweis
+  draw_headline
+  print_row  widths "⚠️ IMPORTANT NOTICE ⚠️"
+  draw_headline
+
+  # Warnungstabelle
+  draw_border widths
+  print_row  widths "7 - ⚠️ auto-ssl.sh warning"
+  draw_border widths
+
+  # Log-Hinweis
+  draw_border widths
+  print_row  widths "💾 LOG NOTICE"
+  print_row  widths "cat /var/log/installation_script.log"
+  draw_border widths
+
+  # 📜 AVAILABLE SCRIPTS
+  draw_border widths
+  print_row widths "📜 AVAILABLE SCRIPTS"
   for f in /usr/local/bin/*.{sh,py}; do
     [ -f "$f" ] || continue
     FN=$(basename "$f")
-    printf '║ │  📜 %-55s │ ║\n' "$FN"
+    print_row widths "📜 $FN"
   done
-echo "║ └────────────────────────────────────────────────────────────┘ ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                        📚 HILFE-SKRIPTE                        ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ ┌────────────────────────────────────────────────────────────┐ ║"
-echo "║ │ 3 - 📚 help.sh                                             │ ║"
-echo "║ │ 4 - 📚 skripts.sh                                           │ ║"
-echo "║ └────────────────────────────────────────────────────────────┘ ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
+  draw_border widths
+  # Hilfe-Skripte
+  draw_border widths
+  print_row  widths "📚 HELP SCRIPTS"
+  print_row  widths "3 - show_help.sh"
+  print_row  widths "4 - show_help_skripts.sh"
+  draw_border widths
+  draw_headline
 }
 #------------------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------------------------------------
 function display_page_3() {
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                          🔄 SYSTEM-BEFEHLE                     ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📌 Neustart des Systems                                        ║"
-echo "║ ┌────────────────────────────────────────────────────────────┐ ║"
-echo "║ │ 💻 sudo reboot                                             │ ║"
-echo "║ └────────────────────────────────────────────────────────────┘ ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                        🖥️ SYSTEM & MONITORING                  ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📊 Systembelastung, Prozesse und Logs prüfen                   ║"
-echo "║ ┌────────────────────────────────────────────────────────────┐ ║"
-echo "║ │ 📈 top                                                     │ ║"
-echo "║ │ 📉 htop (ggf. installieren: sudo apt-get install htop)     │ ║"
-echo "║ │ 📜 journalctl -xe                                          │ ║"
-echo "║ │ 💽 df -h (Dateisystem-Auslastung)                          │ ║"
-echo "║ │ 🏗️ free -h (RAM-Auslastung)                                │ ║"
-echo "║ └────────────────────────────────────────────────────────────┘ ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                         📋 SERVICE-STATUS                       ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 🛠️ Status der folgenden Dienste prüfen                         ║"
-echo "║ ┌────────────────────────────────────────────────────────────┐ ║"
-echo "║ │ 📡 sudo systemctl status nginx                             │ ║"
-echo "║ │ 🗂️ sudo systemctl status supervisor                        │ ║"
-echo "║ │ 🗄️ sudo systemctl status postgresql                         │ ║"
-echo "║ │ 🔴 sudo systemctl status redis                             │ ║"
-echo "║ │ 🐇 sudo systemctl status rabbitmq-server                   │ ║"
-echo "║ │ 📄 sudo systemctl status onlyoffice-documentserver         │ ║"
-echo "║ │ 🌐 sudo systemctl status apache2                           │ ║"
-echo "║ └────────────────────────────────────────────────────────────┘ ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                    🔁 SERVICE-NEUSTART BEFEHLE                  ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 🔄 Neustart der folgenden Dienste                              ║"
-echo "║ ┌────────────────────────────────────────────────────────────┐ ║"
-echo "║ │ 🐇 sudo systemctl restart rabbitmq-server                  │ ║"
-echo "║ │ 📄 sudo systemctl restart onlyoffice-documentserver        │ ║"
-echo "║ │ 🌐 sudo systemctl restart apache2                          │ ║"
-echo "║ └────────────────────────────────────────────────────────────┘ ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                         🌐 APACHE-BEFEHLE                       ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📜 Apache Konfiguration und Logs prüfen                       ║"
-echo "║ ┌────────────────────────────────────────────────────────────┐ ║"
-echo "║ │ 🌐 sudo apache2ctl -S                                      │ ║"
-echo "║ │ 📜 sudo tail -n 10 /var/log/apache2/error.log              │ ║"
-echo "║ │ 📜 sudo tail -n 10 /var/log/apache2/access.log             │ ║"
-echo "║ │ ✍️ sudo nano /etc/apache2/sites-available/onlyoffice.local.conf │ ║"
-echo "║ │ ✍️ sudo nano /etc/apache2/sites-available/onlyoffice-ssl.conf  │ ║"
-echo "║ └────────────────────────────────────────────────────────────┘ ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                         📜 LOG-ANALYSE                          ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📑 Logs der ONLYOFFICE-Dienste anzeigen                        ║"
-echo "║ ┌────────────────────────────────────────────────────────────┐ ║"
-echo "║ │ 📜 sudo tail -n 10 /var/log/onlyoffice/documentserver/docservice/out.log  │ ║"
-echo "║ │ 📜 sudo tail -n 10 /var/log/onlyoffice/documentserver/converter/out.log   │ ║"
-echo "║ │ 📜 sudo tail -n 10 /var/log/onlyoffice/documentserver/metrics/out.log     │ ║"
-echo "║ └────────────────────────────────────────────────────────────┘ ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                     ✍️ EDITOR-BEFEHLE (NANO)                     ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ ✍️ Dateien zum Bearbeiten                                      ║"
-echo "║ ┌────────────────────────────────────────────────────────────┐ ║"
-echo "║ │ 📘 nano /etc/hosts                                         │ ║"
-echo "║ │ 📘 sudo nano /usr/local/bin/cat_hosts.sh                   │ ║"
-echo "║ │ 📘 sudo nano /usr/local/bin/ping_test.py                   │ ║"
-echo "║ │ 📘 sudo nano /usr/local/bin/restart-onlyoffice.py          │ ║"
-echo "║ │ 📘 sudo nano /usr/local/bin/check_rabbitmq_connection.s    │ ║"
-echo "║ │ 📘 nano ~/.bashrc                                          │ ║"
-echo "║ │ 📘 sudo crontab -e                                         │ ║"
-echo "║ │ 📘 sudo nano /usr/local/bin/show_help_commands.sh          │ ║"
-echo "║ └────────────────────────────────────────────────────────────┘ ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
+  echo
+  # ────────────────────────────────────────────────────────────────────────
+  # 🔄 SYSTEM COMMANDS
+  # ────────────────────────────────────────────────────────────────────────
+  draw_headline
+  print_row  widths "🔄 SYSTEM COMMANDS"
+  draw_headline
+  draw_border widths
+  print_row  widths "Reboot system"
+  print_row  widths "sudo reboot"
+  draw_border widths
+  # ────────────────────────────────────────────────────────────────────────
+  # 🖥️ SYSTEM & MONITORING
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row  widths "🖥️ SYSTEM & MONITORING"
+  draw_border widths
+  print_row  widths "Check load, processes and logs"
+  print_row  widths "top"
+  print_row  widths "htop (install: sudo apt-get install htop)"
+  print_row  widths "journalctl -xe"
+  print_row  widths "df -h"
+  print_row  widths "free -h"
+  draw_border widths
+  # ────────────────────────────────────────────────────────────────────────
+  # 📋 SERVICE STATUS
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row  widths "📋 SERVICE STATUS"
+  draw_border widths
+  print_row  widths "Check status of services"
+  print_row  widths "sudo systemctl status nginx"
+  print_row  widths "sudo systemctl status supervisor"
+  print_row  widths "sudo systemctl status postgresql"
+  print_row  widths "sudo systemctl status redis"
+  print_row  widths "sudo systemctl status rabbitmq-server"
+  print_row  widths "sudo systemctl status onlyoffice-documentserver"
+  print_row  widths "sudo systemctl status apache2"
+  draw_border widths
+  # ────────────────────────────────────────────────────────────────────────
+  # 🔁 SERVICE RESTART
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row  widths "🔁 SERVICE RESTART"
+  draw_border widths
+  print_row  widths "Restart selected services"
+  print_row  widths "sudo systemctl restart rabbitmq-server"
+  print_row  widths "sudo systemctl restart onlyoffice-documentserver"
+  print_row  widths "sudo systemctl restart apache2"
+  draw_border widths
+  # ────────────────────────────────────────────────────────────────────────
+  # 🌐 APACHE COMMANDS
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row  widths "🌐 APACHE COMMANDS"
+  draw_border widths
+  print_row  widths "Show virtual host settings"
+  print_row  widths "sudo apache2ctl -S"
+  print_row  widths "View error log"
+  print_row  widths "sudo tail -n 10 /var/log/apache2/error.log"
+  print_row  widths "View access log"
+  print_row  widths "sudo tail -n 10 /var/log/apache2/access.log"
+  print_row  widths "Edit site config"
+  print_row  widths "sudo nano /etc/apache2/sites-available/onlyoffice.local.conf"
+  print_row  widths "sudo nano /etc/apache2/sites-available/onlyoffice-ssl.conf"
+  draw_border widths
+  # ────────────────────────────────────────────────────────────────────────
+  # 📜 LOG ANALYSIS
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row  widths "📜 LOG ANALYSIS"
+  draw_border widths
+  print_row  widths "ONLYOFFICE service logs"
+  print_row  widths "sudo tail -n 10 /var/log/onlyoffice/documentserver/docservice/out.log"
+  print_row  widths "sudo tail -n 10 /var/log/onlyoffice/documentserver/converter/out.log"
+  print_row  widths "sudo tail -n 10 /var/log/onlyoffice/documentserver/metrics/out.log"
+  draw_border widths
+  # ────────────────────────────────────────────────────────────────────────
+  # ✍️ EDITOR COMMANDS (NANO)
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row  widths "✍️ EDITOR COMMANDS (NANO)"
+  draw_border widths
+  print_row  widths "Edit /etc/hosts"
+  print_row  widths "nano /etc/hosts"
+  print_row  widths "Edit custom scripts"
+  print_row  widths "sudo nano /usr/local/bin/cat_hosts.sh"
+  print_row  widths "sudo nano /usr/local/bin/ping_test.py"
+  print_row  widths "sudo nano /usr/local/bin/restart-onlyoffice.py"
+  print_row  widths "sudo nano /usr/local/bin/check_rabbitmq_connection.sh"
+  print_row  widths "nano ~/.bashrc"
+  print_row  widths "sudo crontab -e"
+  print_row  widths "sudo nano /usr/local/bin/show_help_commands.sh"
+  draw_border widths
+  draw_headline
 }
 #------------------------------------------------------------------------------------------------------------------------------
 function display_page_4() {
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                     📚 NGINX HILFE & KOMMANDOS                  ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                         📁 WICHTIGE VERZEICHNISSE               ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 🔍 Hauptverz.: /etc/nginx/                                      ║"
-echo "║ 🔍 Konfig-Datei: /etc/nginx/nginx.conf                          ║"
-echo "║ 🔍 Virt. Hosts: /etc/nginx/sites-available/                     ║"
-echo "║ 🔍 Aktivierte Hosts: /etc/nginx/sites-enabled/                  ║"
-echo "║ 🔍 Module: /etc/nginx/conf.d/                                   ║"
-echo "║ 🔍 Logs: /var/log/nginx/access.log & /var/log/nginx/error.log   ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                         📄 NÜTZLICHE BEFEHLE                    ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 🛠️ NGINX Dienst-Optionen                                       ║"
-echo "║ ┌────────────────────────────────────────────────────────────┐ ║"
-echo "║ │ 📜 start: sudo systemctl start nginx                       │ ║"
-echo "║ │ 📜 stop: sudo systemctl stop nginx                         │ ║"
-echo "║ │ 🔄 restart: sudo systemctl restart nginx                   │ ║"
-echo "║ │ 🔄 reload: sudo systemctl reload nginx                     │ ║"
-echo "║ │ 🔄 status: sudo systemctl status nginx                     │ ║"
-echo "║ └────────────────────────────────────────────────────────────┘ ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📋 Konfiguration & Logs                                         ║"
-echo "║ ┌────────────────────────────────────────────────────────────┐ ║"
-echo "║ │ ✅ Test: nginx -t                                            │ ║"
-echo "║ │ 📜 Konfig anzeigen: nginx -T                                 │ ║"
-echo "║ │ 🔍 Version: nginx -V                                         │ ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                      🔍 FEHLERSUCHE & LOGS                      ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📜 Logs anzeigen:                                              ║"
-echo "║ ┌────────────────────────────────────────────────────────────┐ ║"
-echo "║ │ 📜 Fehlerlogs: cat /var/log/nginx/error.log                  │ ║"
-echo "║ │ 📜 Letzte Fehler: tail -n 20 /var/log/nginx/error.log        │ ║"
-echo "║ │ 📜 Live-Fehler: tail -f /var/log/nginx/error.log             │ ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                         📂 DATEISUCHE                          ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📂 Wichtige Dateien finden:                                    ║"
-echo "║ ┌────────────────────────────────────────────────────────────┐ ║"
-echo "║ │ 📜 Alle .conf-Dateien: find /etc/nginx -name '*.conf'       │ ║"
-echo "║ │ 🔍 Server-Namen: grep -r 'server_name' /etc/nginx/           │ ║"
-echo "║ │ 🔍 Ports finden: grep -r 'listen' /etc/nginx/                │ ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                         ⚙️ SYSTEMSTATUS                        ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📊 NGINX Systemstatus:                                        ║"
-echo "║ ┌────────────────────────────────────────────────────────────┐ ║"
-echo "║ │ 📜 Dienststatus: sudo systemctl status nginx                │ ║"
-echo "║ │ 📜 Prozesse: ps aux | grep nginx                            │ ║"
-echo "║ │ 🔍 Port 80: netstat -tuln | grep 80                         │ ║"
-echo "║ │ 🔍 Port 443: netstat -tuln | grep 443                       │ ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                     📢 NÜTZLICHE HINWEISE                      ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 🔥 Konfigurationsänderungen erfordern 'reload'                 ║"
-echo "║ 📢 Befehl: sudo systemctl reload nginx                         ║"
-echo "║ 🔥 Konfiguration testen: nginx -t                             ║"
-echo "║ 🔥 Logs überprüfen: tail -f /var/log/nginx/error.log           ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
+  echo
+  # ────────────────────────────────────────────────────────────────────────
+  # 🌐 NGINX HELP & COMMANDS
+  # ────────────────────────────────────────────────────────────────────────
+  draw_headline
+  print_row   widths "🌐 NGINX HELP & COMMANDS"
+  draw_headline
+  # ────────────────────────────────────────────────────────────────────────
+  # 📁 IMPORTANT DIRECTORIES
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row   widths "📁 IMPORTANT DIRECTORIES"
+  draw_border widths
+  print_row   widths "/etc/nginx/               – main config"
+  print_row   widths "/etc/nginx/nginx.conf     – global settings"
+  print_row   widths "/etc/nginx/sites-available – vhosts"
+  print_row   widths "/etc/nginx/sites-enabled   – enabled vhosts"
+  print_row   widths "/etc/nginx/conf.d/         – extra configs"
+  print_row   widths "/var/log/nginx/            – access & error logs"
+  draw_border widths
+  # ────────────────────────────────────────────────────────────────────────
+  # 🛠️ USEFUL COMMANDS
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row   widths "🛠️ USEFUL COMMANDS"
+  draw_border widths
+  print_row   widths "sudo systemctl start nginx     – start service"
+  print_row   widths "sudo systemctl stop nginx      – stop service"
+  print_row   widths "sudo systemctl restart nginx   – restart service"
+  print_row   widths "sudo systemctl reload nginx    – reload config"
+  print_row   widths "sudo systemctl status nginx    – check status"
+  draw_border widths
+  # ────────────────────────────────────────────────────────────────────────
+  # 🔍 TROUBLESHOOTING & LOGS
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row   widths "🔍 TROUBLESHOOTING & LOGS"
+  draw_border widths
+  print_row   widths "cat /var/log/nginx/error.log      – view errors"
+  print_row   widths "tail -n 20 /var/log/nginx/error.log – last 20 errors"
+  print_row   widths "tail -f /var/log/nginx/error.log   – live error stream"
+  draw_border widths
+  # ────────────────────────────────────────────────────────────────────────
+  # 📂 FILE SEARCH
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row   widths "📂 FILE SEARCH"
+  draw_border widths
+  print_row   widths "find /etc/nginx -name '*.conf'    – all .conf files"
+  print_row   widths "grep -R 'server_name' /etc/nginx/ – find server_name"
+  print_row   widths "grep -R 'listen' /etc/nginx/      – find ports"
+  draw_border widths
+  # ────────────────────────────────────────────────────────────────────────
+  # ⚙️ SYSTEM STATUS
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row   widths "⚙️ SYSTEM STATUS"
+  draw_border widths
+  print_row   widths "sudo systemctl status nginx      – service status"
+  print_row   widths "ps aux | grep nginx               – running processes"
+  print_row   widths "netstat -tuln | grep 80           – check port 80"
+  print_row   widths "netstat -tuln | grep 443          – check port 443"
+  draw_border widths
+  # ────────────────────────────────────────────────────────────────────────
+  # 💡 USEFUL TIPS
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row   widths "💡 USEFUL TIPS"
+  draw_border widths
+  print_row   widths "Always reload after changes: sudo systemctl reload nginx"
+  print_row   widths "Test config before reload: nginx -t"
+  print_row   widths "Watch logs in real time: tail -f /var/log/nginx/error.log"
+  draw_border widths
+  draw_headline
 }
 #------------------------------------------------------------------------------------------------------------------------------
 function display_page_5() {
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                        🔥 UFW FIREWALL COMMANDS 🔥               ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📜 INSTALLATION & STATUS                                       ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ apt install ufw -y                    # Installiert UFW         ║"
-echo "║ ufw status                            # Zeigt UFW-Status        ║"
-echo "║ ufw status verbose                    # Zeigt UFW-Status (Details) ║"
-echo "║ ufw enable                            # Aktiviert UFW           ║"
-echo "║ ufw disable                           # Deaktiviert UFW         ║"
-echo "║ ufw reload                            # Lädt UFW-Konfiguration neu ║"
-echo "║ ufw reset                             # Setzt UFW auf Standard  ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📜 STANDARD-RICHTLINIEN                                        ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ ufw default deny incoming            # Blockiert eingehend     ║"
-echo "║ ufw default allow outgoing           # Erlaubt ausgehend       ║"
-echo "║ ufw default allow incoming           # Erlaubt eingehend (nicht empfohlen) ║"
-echo "║ ufw default deny outgoing            # Blockiert ausgehend     ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📜 PORTS & DIENSTE VERWALTEN                                   ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ ufw allow 22                          # Erlaubt SSH-Zugriff    ║"
-echo "║ ufw allow 80                          # Erlaubt HTTP-Zugriff   ║"
-echo "║ ufw allow 443                         # Erlaubt HTTPS-Zugriff  ║"
-echo "║ ufw allow 8080/tcp                    # Erlaubt TCP Port 8080  ║"
-echo "║ ufw allow 5000:6000/tcp               # Erlaubt TCP Bereich 5000-6000 ║"
-echo "║ ufw allow from 192.168.1.0/24         # Erlaubt Zugriff von 192.168.1.0/24 ║"
-echo "║ ufw deny 3306                         # Blockiert MySQL-Port 3306  ║"
-echo "║ ufw deny from 203.0.113.4             # Blockiert IP 203.0.113.4   ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📜 UFW NGINX-BEFEHLE                                          ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ ufw allow 'Nginx Full'              # Erlaubt HTTP und HTTPS   ║"
-echo "║ ufw allow 'Nginx HTTP'              # Erlaubt nur HTTP (Port 80) ║"
-echo "║ ufw allow 'Nginx HTTPS'             # Erlaubt nur HTTPS (Port 443) ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📜 UFW REGELN VERWALTEN                                       ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ ufw delete allow 22                   # Entfernt SSH-Erlaubnis ║"
-echo "║ ufw delete deny 3306                  # Entfernt MySQL-Block   ║"
-echo "║ ufw delete allow 8080/tcp             # Entfernt Erlaubnis Port 8080 ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📜 REGELN FÜR SPEZIFISCHE IPs UND SCHNITTSTELLEN                ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ ufw allow in on eth0                    # Erlaubt auf eth0     ║"
-echo "║ ufw allow from 203.0.113.5              # Erlaubt Zugriff von IP ║"
-echo "║ ufw allow from 192.168.1.0/24 to any port 22 # Erlaubt SSH aus Subnetz ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📜 LOGGING & PROTOKOLLE                                       ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ ufw logging on                       # Aktiviert Protokoll     ║"
-echo "║ ufw logging low                      # Setzt Protokoll auf niedrig ║"
-echo "║ ufw logging medium                   # Setzt Protokoll auf mittel ║"
-echo "║ ufw logging high                     # Setzt Protokoll auf hoch ║"
-echo "║ tail -f /var/log/ufw.log             # Zeigt UFW-Logs in Echtzeit ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📜 KONFIGURATION SICHERN UND LADEN                             ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ ufw export > ufw_backup.rules       # Exportiert Konfiguration ║"
-echo "║ ufw reset && ufw import ufw_backup.rules # Lädt gespeicherte Konfig ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📜 ANWENDUNGEN MIT UFW VERWALTEN                              ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ ufw app list                          # Zeigt installierte Apps ║"
-echo "║ ufw app info Apache                   # Infos zu Apache-Profil ║"
-echo "║ ufw allow Apache                      # Erlaubt Apache-Profile ║"
-echo "║ ufw delete allow Apache               # Entfernt Apache-Regel  ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📜 REGELN FÜR SPEZIFISCHE PROTOKOLLE                          ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ ufw allow proto tcp from 192.168.1.0/24 to any port 80        ║"
-echo "║ ufw allow proto udp from 203.0.113.0/24 to any port 53        ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
+  echo
+  # ────────────────────────────────────────────────────────────────────────
+  # 🔥 UFW FIREWALL COMMANDS 🔥
+  # ────────────────────────────────────────────────────────────────────────
+  draw_headline
+  print_row   widths "🔥 UFW FIREWALL COMMANDS 🔥"
+  draw_headline
+
+  # Installation & Status
+  draw_border widths
+  print_row   widths "📜 INSTALLATION & STATUS"
+  draw_border widths
+  print_row   widths "Install UFW: sudo apt install ufw -y"
+  print_row   widths "Show status: ufw status"
+  print_row   widths "Verbose status: ufw status verbose"
+  print_row   widths "Enable firewall: ufw enable"
+  print_row   widths "Disable firewall: ufw disable"
+  print_row   widths "Reload rules: ufw reload"
+  print_row   widths "Reset to defaults: ufw reset"
+  draw_border widths
+
+  # Default Policies
+  draw_border widths
+  print_row   widths "📜 DEFAULT POLICIES"
+  draw_border widths
+  print_row   widths "ufw default deny incoming"
+  print_row   widths "ufw default allow outgoing"
+  print_row   widths "ufw default allow incoming    (not recommended)"
+  print_row   widths "ufw default deny outgoing"
+  draw_border widths
+
+  # Manage Ports & Services
+  draw_border widths
+  print_row   widths "📜 PORTS & SERVICES"
+  draw_border widths
+  print_row   widths "ufw allow 22                 – allow SSH"
+  print_row   widths "ufw allow 80                 – allow HTTP"
+  print_row   widths "ufw allow 443                – allow HTTPS"
+  print_row   widths "ufw allow 8080/tcp           – allow TCP 8080"
+  print_row   widths "ufw allow 5000:6000/tcp      – allow TCP 5000–6000"
+  print_row   widths "ufw allow from 192.168.1.0/24  – allow subnet"
+  print_row   widths "ufw deny 3306                – deny MySQL port"
+  print_row   widths "ufw deny from 203.0.113.4    – deny single IP"
+  draw_border widths
+
+  # NGINX Application Profiles
+  draw_border widths
+  print_row   widths "📜 NGINX APPLICATION PROFILES"
+  draw_border widths
+  print_row   widths "ufw allow 'Nginx Full'       – HTTP & HTTPS"
+  print_row   widths "ufw allow 'Nginx HTTP'       – HTTP only"
+  print_row   widths "ufw allow 'Nginx HTTPS'      – HTTPS only"
+  draw_border widths
+
+  # Delete Rules
+  draw_border widths
+  print_row   widths "📜 DELETE RULES"
+  draw_border widths
+  print_row   widths "ufw delete allow 22"
+  print_row   widths "ufw delete deny 3306"
+  print_row   widths "ufw delete allow 8080/tcp"
+  draw_border widths
+
+  # Specific IPs & Interfaces
+  draw_border widths
+  print_row   widths "📜 SPECIFIC IPS & INTERFACES"
+  draw_border widths
+  print_row   widths "ufw allow in on eth0        – allow on eth0"
+  print_row   widths "ufw allow from 203.0.113.5  – allow from IP"
+  print_row   widths "ufw allow from 192.168.1.0/24 to any port 22  – allow SSH from subnet"
+  draw_border widths
+
+  # Logging & Levels
+  draw_border widths
+  print_row   widths "📜 LOGGING & LEVELS"
+  draw_border widths
+  print_row   widths "ufw logging on"
+  print_row   widths "ufw logging low"
+  print_row   widths "ufw logging medium"
+  print_row   widths "ufw logging high"
+  print_row   widths "tail -f /var/log/ufw.log   – live log"
+  draw_border widths
+
+  # Save & Load Configuration
+  draw_border widths
+  print_row   widths "📜 SAVE & LOAD CONFIG"
+  draw_border widths
+  print_row   widths "ufw export > ufw_backup.rules"
+  print_row   widths "ufw reset && ufw import ufw_backup.rules"
+  draw_border widths
+
+  # Application Profiles Management
+  draw_border widths
+  print_row   widths "📜 APPLICATION PROFILE MANAGEMENT"
+  draw_border widths
+  print_row   widths "ufw app list               – list profiles"
+  print_row   widths "ufw app info Apache        – show Apache profile"
+  print_row   widths "ufw allow Apache           – allow Apache profile"
+  print_row   widths "ufw delete allow Apache    – delete Apache rule"
+  draw_border widths
+
+  # Protocol-Specific Rules
+  draw_border widths
+  print_row   widths "📜 PROTOCOL-SPECIFIC RULES"
+  draw_border widths
+  print_row   widths "ufw allow proto tcp from 192.168.1.0/24 to any port 80"
+  print_row   widths "ufw allow proto udp from 203.0.113.0/24 to any port 53"
+  draw_border widths
+  draw_headline
 }
 #------------------------------------------------------------------------------------------------------------------------------
 function display_page_6() {
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                       📁 VERZEICHNISÜBERSICHT                   ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📁 SYSTEMVERZEICHNISSE                                        ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📂 /etc/                           # Hauptkonfigurationsverzeichnis  ║"
-echo "║ 📂 /usr/local/bin/                 # Benutzerdefinierte Skripte      ║"
-echo "║ 📂 /var/log/                       # Systemprotokolle                 ║"
-echo "║ 📂 /home/                          # Benutzerverzeichnisse            ║"
-echo "║ 📂 /tmp/                           # Temporäre Dateien                ║"
-echo "║ 📂 /opt/                           # Software-Pakete von Drittanbietern ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📁 UFW-FIREWALL VERZEICHNISSE                                 ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📂 /etc/ufw/                      # Konfigurationsverzeichnis der UFW ║"
-echo "║ 📂 /var/log/ufw.log                # Protokolle der UFW-Firewall      ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📁 NGINX VERZEICHNISSE                                        ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📂 /etc/nginx/                    # NGINX-Konfigurationsverzeichnis  ║"
-echo "║ 📂 /etc/nginx/sites-available/    # Verfügbare virtuelle Hosts       ║"
-echo "║ 📂 /etc/nginx/sites-enabled/      # Aktivierte virtuelle Hosts       ║"
-echo "║ 📂 /var/log/nginx/                 # NGINX-Protokolldateien           ║"
-echo "║ 📂 /usr/share/nginx/html/         # Standardverzeichnis für Webinhalte ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📁 LOG-DATEIEN VERZEICHNISSE                                 ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📜 /var/log/syslog                 # Systemprotokoll              ║"
-echo "║ 📜 /var/log/auth.log               # Authentifizierungsprotokoll  ║"
-echo "║ 📜 /var/log/kern.log               # Kernel-Protokoll             ║"
-echo "║ 📜 /var/log/dpkg.log               # Protokoll der Paketverwaltung║"
-echo "║ 📜 /var/log/boot.log               # Boot-Protokoll               ║"
-echo "║ 📜 /var/log/ufw.log                # UFW-Firewall-Logs            ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📁 BENUTZERDEFINIERTE VERZEICHNISSE                          ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ 📂 /usr/local/bin/                # Benutzerdefinierte Skripte  ║"
-echo "║ 📂 ~/.config/                     # Benutzerkonfigurationsdateien║"
-echo "║ 📂 ~/.local/share/                # Lokale Benutzerdateien       ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
+  echo
+  # ────────────────────────────────────────────────────────────────────────
+  # 📁 DIRECTORY OVERVIEW
+  # ────────────────────────────────────────────────────────────────────────
+  draw_headline
+  print_row   widths "📁 DIRECTORY OVERVIEW"
+  draw_headline
+  # ────────────────────────────────────────────────────────────────────────
+  # 📁 SYSTEM DIRECTORIES
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row   widths "📁 SYSTEM DIRECTORIES"
+  draw_border widths
+  print_row   widths "/etc/                  – main config folder"
+  print_row   widths "/usr/local/bin/        – custom scripts"
+  print_row   widths "/var/log/              – system logs"
+  print_row   widths "/home/                 – user home directories"
+  print_row   widths "/tmp/                  – temporary files"
+  print_row   widths "/opt/                  – third-party packages"
+  draw_border widths
+  # ────────────────────────────────────────────────────────────────────────
+  # 📁 UFW FIREWALL DIRECTORIES
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row   widths "📁 UFW FIREWALL DIRECTORIES"
+  draw_border widths
+  print_row   widths "/etc/ufw/              – UFW config directory"
+  print_row   widths "/var/log/ufw.log       – UFW log file"
+  draw_border widths
+  # ────────────────────────────────────────────────────────────────────────
+  # 📁 NGINX DIRECTORIES
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row   widths "📁 NGINX DIRECTORIES"
+  draw_border widths
+  print_row   widths "/etc/nginx/            – nginx config directory"
+  print_row   widths "/etc/nginx/sites-available/ – available vhosts"
+  print_row   widths "/etc/nginx/sites-enabled/   – enabled vhosts"
+  print_row   widths "/var/log/nginx/         – nginx log files"
+  print_row   widths "/usr/share/nginx/html/  – default web root"
+  draw_border widths
+  # ────────────────────────────────────────────────────────────────────────
+  # 📁 LOG FILE DIRECTORIES
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row   widths "📁 LOG FILE DIRECTORIES"
+  draw_border widths
+  print_row   widths "/var/log/syslog         – system log"
+  print_row   widths "/var/log/auth.log       – authentication log"
+  print_row   widths "/var/log/kern.log       – kernel log"
+  print_row   widths "/var/log/dpkg.log       – package manager log"
+  print_row   widths "/var/log/boot.log       – boot log"
+  print_row   widths "/var/log/ufw.log        – UFW firewall logs"
+  draw_border widths
+  # ────────────────────────────────────────────────────────────────────────
+  # 📁 CUSTOM USER DIRECTORIES
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row   widths "📁 CUSTOM USER DIRECTORIES"
+  draw_border widths
+  print_row   widths "/usr/local/bin/        – custom scripts"
+  print_row   widths "~/.config/             – user config files"
+  print_row   widths "~/.local/share/        – local share files"
+  draw_border widths
+  draw_headline
 }
 #------------------------------------------------------------------------------------------------------------------------------
 function display_page_7() {
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║                      🐳 DOCKER-BEFEHLE-HILFE                   ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 🛠️  GRUNDLAGEN                                                  ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ docker --version                # Docker-Version anzeigen       ║"
-echo "║ systemctl status docker         # Status des Docker-Dienstes    ║"
-echo "║ systemctl start docker          # Docker-Dienst starten         ║"
-echo "║ systemctl stop docker           # Docker-Dienst stoppen         ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 🐳 CONTAINER-VERWALTUNG                                         ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ docker ps                      # Laufende Container anzeigen    ║"
-echo "║ docker ps -a                   # Alle Container anzeigen        ║"
-echo "║ docker run <image>             # Container starten              ║"
-echo "║ docker stop <container_id>     # Container stoppen              ║"
-echo "║ docker start <container_id>    # Container erneut starten       ║"
-echo "║ docker rm <container_id>       # Container löschen              ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 🔄 IMAGES-VERWALTUNG                                           ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ docker images                  # Verfügbare Images anzeigen     ║"
-echo "║ docker pull <image>            # Image herunterladen            ║"
-echo "║ docker rmi <image_id>          # Image löschen                  ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 🔍 LOGS UND DETAILS                                            ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ docker logs <container_id>      # Logs eines Containers         ║"
-echo "║ docker inspect <container_id>   # Details eines Containers      ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📦 VOLUMES UND NETZWERKE                                       ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ docker volume create <name>     # Volume erstellen              ║"
-echo "║ docker volume ls                # Volumes anzeigen              ║"
-echo "║ docker network create <name>    # Netzwerk erstellen            ║"
-echo "║ docker network ls               # Netzwerke anzeigen            ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 📁 DATEIEN KOPIEREN                                            ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ docker cp <pfad> <container_id>:<ziel>   # Host → Container    ║"
-echo "║ docker cp <container_id>:<pfad> <ziel>   # Container → Host    ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
-echo ""
-echo "╔════════════════════════════════════════════════════════════════╗"
-echo "║ 🐙 DOCKER-COMPOSE                                              ║"
-echo "╠════════════════════════════════════════════════════════════════╣"
-echo "║ docker-compose --version         # Version anzeigen            ║"
-echo "║ docker-compose up -d             # Container starten (Hintergr.)║"
-echo "║ docker-compose down              # Container stoppen/herunterfahren ║"
-echo "║ docker-compose logs <service>    # Logs anzeigen               ║"
-echo "║ docker-compose ps                # Status anzeigen             ║"
-echo "╚════════════════════════════════════════════════════════════════╝"
+  echo
+  # ────────────────────────────────────────────────────────────────────────
+  # 🐳 DOCKER COMMAND REFERENCE
+  # ────────────────────────────────────────────────────────────────────────
+  draw_headline
+  print_row   widths "🐳 DOCKER COMMAND REFERENCE"
+  draw_headline
+  # ────────────────────────────────────────────────────────────────────────
+  # 🔧 BASICS
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row   widths "🔧 BASICS"
+  draw_border widths
+  print_row   widths "docker --version            – show Docker version"
+  print_row   widths "systemctl status docker     – show Docker service status"
+  print_row   widths "systemctl start docker      – start Docker service"
+  print_row   widths "systemctl stop docker       – stop Docker service"
+  draw_border widths
+  # ────────────────────────────────────────────────────────────────────────
+  # 🐳 CONTAINER MANAGEMENT
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row   widths "🐳 CONTAINER MANAGEMENT"
+  draw_border widths
+  print_row   widths "docker ps                   – list running containers"
+  print_row   widths "docker ps -a                – list all containers"
+  print_row   widths "docker run <image>          – start a new container"
+  print_row   widths "docker stop <container_id>  – stop a container"
+  print_row   widths "docker start <container_id> – restart a container"
+  print_row   widths "docker rm <container_id>    – remove a container"
+  draw_border widths
+  # ────────────────────────────────────────────────────────────────────────
+  # 🖼️ IMAGE MANAGEMENT
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row   widths "🖼️ IMAGE MANAGEMENT"
+  draw_border widths
+  print_row   widths "docker images               – list images"
+  print_row   widths "docker pull <image>         – download an image"
+  print_row   widths "docker rmi <image_id>       – remove an image"
+  draw_border widths
+  # ────────────────────────────────────────────────────────────────────────
+  # 🔍 LOGS & INSPECTION
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row   widths "🔍 LOGS & INSPECTION"
+  draw_border widths
+  print_row   widths "docker logs <container_id>   – view container logs"
+  print_row   widths "docker inspect <container_id>– show container details"
+  draw_border widths
+  # ────────────────────────────────────────────────────────────────────────
+  # 📦 VOLUMES & NETWORKS
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row   widths "📦 VOLUMES & NETWORKS"
+  draw_border widths
+  print_row   widths "docker volume create <name>  – create a volume"
+  print_row   widths "docker volume ls             – list volumes"
+  print_row   widths "docker network create <name> – create a network"
+  print_row   widths "docker network ls            – list networks"
+  draw_border widths
+  # ────────────────────────────────────────────────────────────────────────
+  # 📁 FILE COPY
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row   widths "📁 FILE COPY"
+  draw_border widths
+  print_row   widths "docker cp <src> <ctr>:<dst>  – copy host → container"
+  print_row   widths "docker cp <ctr>:<src> <dst>  – copy container → host"
+  draw_border widths
+  # ────────────────────────────────────────────────────────────────────────
+  # 🐙 DOCKER COMPOSE
+  # ────────────────────────────────────────────────────────────────────────
+  draw_border widths
+  print_row   widths "🐙 DOCKER COMPOSE"
+  print_row   widths "docker-compose --version     – show Compose version"
+  print_row   widths "docker-compose up -d         – start services in background"
+  print_row   widths "docker-compose down          – stop & remove containers"
+  print_row   widths "docker-compose logs <svc>    – view service logs"
+  print_row   widths "docker-compose ps            – list services status"
+  draw_border widths
+  draw_headline
 }
 #------------------------------------------------------------------------------------------------------------------------------
 function display_page_8() {
