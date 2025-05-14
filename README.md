@@ -136,56 +136,53 @@ sudo curl -fsSL \
 ---
 | Skript                                              | Installationsbefehl                                                                                                                                                                    |
 |-----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|
-```bash
+| ```bash                                           
 help_page.sh
-```
-                                                   |
-```bash
+```                                                   | ```bash                                           
 sudo curl -fsSL https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-helb/help_page.sh -o /usr/local/bin/help_page.sh && sudo chmod +x /usr/local/bin/help_page.sh
 ```                                                    |
-| ```bash
+| ```bash                                           
 cat.sh
-```                                                        | ```bash
+```                                                        | ```bash                                           
 sudo curl -fsSL https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/cat.sh -o /usr/local/bin/cat.sh && sudo chmod +x /usr/local/bin/cat.sh
 ```                                                        |
-| ```bash
+| ```bash                                           
 docker.sh
-```                                                     | ```bash
+```                                                     | ```bash                                           
 sudo curl -fsSL https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/docker.sh -o /usr/local/bin/docker.sh && sudo chmod +x /usr/local/bin/docker.sh
 ```                                                     |
-| ```bash
+| ```bash                                           
 hosts.py
-```                                                     | ```bash
+```                                                     | ```bash                                           
 sudo curl -fsSL https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/hosts.py -o /usr/local/bin/hosts.py && sudo chmod +x /usr/local/bin/hosts.py
 ```                                                     |
-| ```bash
+| ```bash                                           
 ping.py
-```                                                      | ```bash
+```                                                      | ```bash                                           
 sudo curl -fsSL https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/ping.py -o /usr/local/bin/ping.py && sudo chmod +x /usr/local/bin/ping.py
 ```                                                      |
-| ```bash
+| ```bash                                           
 urls.sh
-```                                                      | ```bash
+```                                                      | ```bash                                           
 sudo curl -fsSL https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/urls.sh -o /usr/local/bin/urls.sh && sudo chmod +x /usr/local/bin/urls.sh
 ```                                                      |
-| ```bash
+| ```bash                                           
 help.sh
-```                                                      | ```bash
+```                                                      | ```bash                                           
 sudo curl -fsSL https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-helb/help.sh -o /usr/local/bin/help.sh && sudo chmod +x /usr/local/bin/help.sh
 ```                                                      |
-| ```bash
+| ```bash                                           
 skripts.sh
-```                                                   | ```bash
+```                                                   | ```bash                                           
 sudo curl -fsSL https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-helb/skripts.sh -o /usr/local/bin/skripts.sh && sudo chmod +x /usr/local/bin/skripts.sh
 ```                                                   |
-| ```bash
+| ```bash                                           
 systemv.sh
-```                                                   | ```bash
+```                                                   | ```bash                                           
 sudo curl -fsSL https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-management/systemv.sh -o /usr/local/bin/systemv.sh && sudo chmod +x /usr/local/bin/systemv.sh
 ```                                                   |
-| ```bash
+| ```bash                                           
 upgrade.sh
-```                                                   | ```bash
+```                                                   | ```bash                                           
 sudo curl -fsSL https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-management/upgrade.sh -o /usr/local/bin/upgrade.sh && sudo chmod +x /usr/local/bin/upgrade.sh
 ```                                                   |
