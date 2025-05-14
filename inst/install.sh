@@ -51,10 +51,10 @@ SCRIPT_PATH1="/usr/local/bin/skripts.sh"
 SCRIPT_PATH2="/usr/local/bin/help.sh"
 # 📜 Help – script paths 📝 💾 📂 🛠️
 SCRIPT_PATH3="/usr/local/bin/upgrade.sh"
-SCRIPT_PATH4="/usr/local/bin/update_hosts.py"
-SCRIPT_PATH5="/usr/local/bin/ping_test.py"
-SCRIPT_PATH6="/usr/local/bin/cat_hosts.sh"
-SCRIPT_PATH7="/usr/local/bin/check_urls.sh"
+SCRIPT_PATH4="/usr/local/bin/hosts.py"
+SCRIPT_PATH5="/usr/local/bin/ping.py"
+SCRIPT_PATH6="/usr/local/bin/cat.sh"
+SCRIPT_PATH7="/usr/local/bin/urls.sh"
 SCRIPT_PATH8="/usr/local/bin/08.sh"
 SCRIPT_PATH9="/usr/local/bin/09.sh"
 SCRIPT_PATH10="/usr/local/bin/10.sh"
@@ -1217,57 +1217,57 @@ sleep 1
 log_message "🛠️ Starting system upgrade"
 if [ -f "$SCRIPT_PATH3" ]; then
     sleep 1
-    log_message "✅ upgrade.sh found. Running script."
+    log_message "✅ $(basename "$SCRIPT_PATH3") found. Running script."
     if sudo bash "$SCRIPT_PATH3" | tee -a /var/log/installation_script.log; then
-        log_message "🎉 upgrade.sh completed successfully."
+        log_message "🎉 $(basename "$SCRIPT_PATH3") ran successfully."
     else
-        log_message "❌ Error running upgrade.sh."
+        log_message "❌ Error running $(basename "$SCRIPT_PATH3")."
         exit 1
     fi
 else
-    log_message "❌ upgrade.sh not found."
+    log_message "❌ $(basename "$SCRIPT_PATH3") not found."
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
-# ⚙️ Run update_hosts.py | SCRIPT_PATH4="/usr/local/bin/update_hosts.py"
+# ⚙️ Run hosts.py | SCRIPT_PATH4="/usr/local/bin/hosts.py"
 sleep 1
 log_message "🛠️ Updating hosts file"
 if [ -f "$SCRIPT_PATH4" ]; then
     sleep 1
-    log_message "✅ update_hosts.py found. Running script."
+    log_message "✅ $(basename "$SCRIPT_PATH4") found. Running script."
     if sudo python3 "$SCRIPT_PATH4" | tee -a /var/log/installation_script.log; then
-        log_message "🎉 update_hosts.py completed successfully."
+        log_message "🎉 $(basename "$SCRIPT_PATH4") ran successfully."
     else
-        log_message "❌ Error running update_hosts.py."
+        log_message "❌ Error running $(basename "$SCRIPT_PATH4")."
         exit 1
     fi
 else
-    log_message "❌ update_hosts.py not found."
+    log_message "❌ $(basename "$SCRIPT_PATH4") not found."
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
-# ⚙️ Run ping_test.py | SCRIPT_PATH5="/usr/local/bin/ping_test.py"
+# ⚙️ Run ping.py | SCRIPT_PATH5="/usr/local/bin/ping.py"
 sleep 1
 log_message "🛠️ Checking required connections"
 if [ -f "$SCRIPT_PATH5" ]; then
     sleep 1
-    log_message "✅ ping_test.py found. Running script."
+    log_message "✅ $(basename "$SCRIPT_PATH5") found. Running script."
     # Unbuffered Python output, real-time to terminal and log
     sudo PYTHONUNBUFFERED=1 python3 "$SCRIPT_PATH5" 2>&1 | tee -a /var/log/installation_script.log
     RET=${PIPESTATUS[0]}
     if [ "$RET" -eq 0 ]; then
-        log_message "🎉 ping_test.py completed successfully."
+        log_message "🎉 $(basename "$SCRIPT_PATH5") ran successfully."
     else
-        log_message "❌ Error running ping_test.py (Exit code: $RET)."
+        log_message "❌ Error running $(basename "$SCRIPT_PATH5")."
         exit 1
     fi
 else
-    log_message "❌ ping_test.py not found."
+    log_message "❌ $(basename "$SCRIPT_PATH5") not found."
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
 # 🛠️ Add entry to crontab
 sleep 1
 log_message "🔄 Adding entry to crontab if missing."
-if ! crontab -l | grep -q '/usr/local/bin/update_hosts.py'; then
-  (crontab -l 2>/dev/null; echo "@reboot /usr/local/bin/update_hosts.py") | crontab -
+if ! crontab -l | grep -q '/usr/local/bin/hosts.py'; then
+  (crontab -l 2>/dev/null; echo "@reboot /usr/local/bin/hosts.py") | crontab -
   sleep 1
   log_message "🎉 Crontab entry added successfully."
 else
@@ -1278,16 +1278,16 @@ fi
 # 📜 Add entry to .bashrc
 sleep 0.5
 log_message "🔄 Adding entry to ~/.bashrc if missing."
-if ! grep -q 'sudo /usr/local/bin/cat_hosts.sh' ~/.bashrc; then
+if ! grep -q 'sudo /usr/local/bin/cat.sh' ~/.bashrc; then
   cat << 'EOF' | tee -a ~/.bashrc > /dev/null
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # 🛠️ Auto-run scripts on SSH login
 if [ -n "$SSH_CONNECTION" ]; then  # Check if SSH connection exists
-    sudo /usr/local/bin/cat_hosts.sh  # Run cat_hosts.sh
-    if [ $? -eq 0 ]; then  # If cat_hosts.sh succeeded (exit code 0)
+    sudo /usr/local/bin/cat.sh  # Run cat.sh
+    if [ $? -eq 0 ]; then  # If cat.sh succeeded (exit code 0)
         sudo /usr/local/bin/skripts.sh  # Run skripts.sh
     else
-        echo "❌ cat_hosts.sh failed. skripts.sh will not run."
+        echo "❌ cat.sh failed. skripts.sh will not run."
     fi
 fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1299,20 +1299,19 @@ else
   log_message "ℹ️ ~/.bashrc entry already exists."
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
-# ⚙️ Run check_urls.sh | SCRIPT_PATH11="/usr/local/bin/check_urls.sh"
 sleep 1
 log_message "🛠️ Verifying URLs"
-if [ -f "$SCRIPT_PATH11" ]; then
+if [ -f "$SCRIPT_PATH7" ]; then
     sleep 1
-    log_message "✅ check_urls.sh found. Running script."
-    if sudo bash "$SCRIPT_PATH11" | tee -a /var/log/installation_script.log; then
-        log_message "🎉 check_urls.sh completed successfully."
+    log_message "✅ $(basename "$SCRIPT_PATH7") found. Running script."
+    if sudo bash "$SCRIPT_PATH7" | tee -a /var/log/installation_script.log; then
+        log_message "🎉 $(basename "$SCRIPT_PATH7") ran successfully."
     else
-        log_message "❌ Error running check_urls.sh."
+        log_message "❌ Error running $(basename "$SCRIPT_PATH7")."
         exit 1
     fi
 else
-    log_message "❌ check_urls.sh not found."
+    log_message "❌ $(basename "$SCRIPT_PATH7") not found."
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
 # Reboot the system
