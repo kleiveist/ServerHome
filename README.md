@@ -26,14 +26,20 @@ This repository contains a collection of server scripts and utilities designed t
 ├── 📝 InContent.txt
 ├── 📝 README.md
 ├── 📝 READMEDE.md
+├── 📂 bin/
+│   ├── 📄 cat.sh
+│   ├── 📄 docker.sh
+│   ├── 🐍 hosts.py
+│   ├── 🐍 ping.py
+│   └── 📄 urls.sh
 ├── 📂 inst/
 │   └── 📄 install.sh
 ├── 📂 server-helb/
-│   └── 📄 help_page.sh
-├── 📂 server-management/
-├── 📂 utilities/
-│   └── 🐍 ping_test.py
-└── 📂 webapp-install/
+│   ├── 📄 help.sh
+│   └── 📄 skripts.sh
+└── 📂 server-management/
+    ├── 📄 systemv.sh
+    └── 📄 upgrade.sh
 ```
 
 - **InContent.txt**
@@ -126,4 +132,16 @@ sudo curl -fsSL \
   -o /usr/local/bin/help_page.sh \
 && sudo chmod +x /usr/local/bin/help_page.sh
 ```
+
 ---
+Skript	Installationsbefehl (curl)
+help_page.sh	sudo curl -fsSL https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-helb/help_page.sh -o /usr/local/bin/help_page.sh && sudo chmod +x /usr/local/bin/help_page.sh
+cat.sh	sudo curl -fsSL https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/cat.sh -o /usr/local/bin/cat.sh && sudo chmod +x /usr/local/bin/cat.sh
+docker.sh	sudo curl -fsSL https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/docker.sh -o /usr/local/bin/docker.sh && sudo chmod +x /usr/local/bin/docker.sh
+hosts.py	sudo curl -fsSL https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/hosts.py -o /usr/local/bin/hosts.py && sudo chmod +x /usr/local/bin/hosts.py
+ping.py	sudo curl -fsSL https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/ping.py -o /usr/local/bin/ping.py && sudo chmod +x /usr/local/bin/ping.py
+urls.sh	sudo curl -fsSL https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/urls.sh -o /usr/local/bin/urls.sh && sudo chmod +x /usr/local/bin/urls.sh
+help.sh	sudo curl -fsSL https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-helb/help.sh -o /usr/local/bin/help.sh && sudo chmod +x /usr/local/bin/help.sh
+skripts.sh	sudo curl -fsSL https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-helb/skripts.sh -o /usr/local/bin/skripts.sh && sudo chmod +x /usr/local/bin/skripts.sh
+systemv.sh	sudo curl -fsSL https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-management/systemv.sh -o /usr/local/bin/systemv.sh && sudo chmod +x /usr/local/bin/systemv.sh
+upgrade.sh	sudo curl -fsSL https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-management/upgrade.sh -o /usr/local/bin/upgrade.sh && sudo chmod +x /usr/local/bin/upgrade.sh

@@ -25,14 +25,20 @@ Dieses Repository enthält eine Sammlung von Server-Skripten und Hilfsprogrammen
 ├── 📝 InContent.txt
 ├── 📝 README.md
 ├── 📝 READMEDE.md
+├── 📂 bin/
+│   ├── 📄 cat.sh
+│   ├── 📄 docker.sh
+│   ├── 🐍 hosts.py
+│   ├── 🐍 ping.py
+│   └── 📄 urls.sh
 ├── 📂 inst/
 │   └── 📄 install.sh
 ├── 📂 server-helb/
-│   └── 📄 help_page.sh
-├── 📂 server-management/
-├── 📂 utilities/
-│   └── 🐍 ping_test.py
-└── 📂 webapp-install/
+│   ├── 📄 help.sh
+│   └── 📄 skripts.sh
+└── 📂 server-management/
+    ├── 📄 systemv.sh
+    └── 📄 upgrade.sh
 ```
 
 - **InContent.txt**
