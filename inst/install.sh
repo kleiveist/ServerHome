@@ -38,7 +38,7 @@ process_script_creation() {
   if [ $? -ne 0 ]; then
     log_message "❌ Error: Script $script_path was not created."
   else
-    sleep 0.5
+    sleep 0.1
     sudo chmod +x "$script_path"
     log_message "🎉 Script created successfully: $script_path"
   fi
@@ -854,7 +854,7 @@ if check_file_exists "$SCRIPT_PATH3"; then
 
 # 🛠️ Function to check if packages are already installed
 check_packages() {
-  local packages=("curl" "wget" "net-tools" "at")
+  local packages=("curl" "wget" "net-tools" "at" "ca-certificates" "lsb-release")
   local missing_packages=()
 
   # 🔍 Check each package
@@ -1137,6 +1137,8 @@ if check_file_exists "$SCRIPT_PATH8"; then
 
 set -euo pipefail
 
+sudo apt-get install -y gnupg
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Variables
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1334,7 +1336,7 @@ sudo chmod +x /usr/local/bin/system_vars.sh
 
 #+----------------------------------------------------------------------------------------------------------------------------------+
 # ⚙️ Set execute permissions and run systemv.sh | SCRIPT_PATH0
-sleep 1
+sleep 0.5
 if [ -f "$SCRIPT_PATH0" ]; then
     sudo chmod +x "$SCRIPT_PATH0"
     log_message "🔧 Execute permission set for $(basename "$SCRIPT_PATH0")."
@@ -1351,10 +1353,10 @@ else
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
 # ⚙️ Run upgrade.sh | SCRIPT_PATH3="/usr/local/bin/upgrade.sh"
-sleep 1
+sleep 0.5
 log_message "🛠️ Starting system upgrade"
 if [ -f "$SCRIPT_PATH3" ]; then
-    sleep 1
+    sleep 0.5
     log_message "✅ $(basename "$SCRIPT_PATH3") found. Running script."
     if sudo bash "$SCRIPT_PATH3" | tee -a /var/log/installation_script.log; then
         log_message "🎉 $(basename "$SCRIPT_PATH3") ran successfully."
@@ -1367,10 +1369,10 @@ else
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
 # ⚙️ Run hosts.py | SCRIPT_PATH4="/usr/local/bin/hosts.py"
-sleep 1
+sleep 0.5
 log_message "🛠️ Updating hosts file"
 if [ -f "$SCRIPT_PATH4" ]; then
-    sleep 1
+    sleep 0.5
     log_message "✅ $(basename "$SCRIPT_PATH4") found. Running script."
     if sudo python3 "$SCRIPT_PATH4" | tee -a /var/log/installation_script.log; then
         log_message "🎉 $(basename "$SCRIPT_PATH4") ran successfully."
@@ -1383,10 +1385,10 @@ else
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
 # ⚙️ Run ping.py | SCRIPT_PATH5="/usr/local/bin/ping.py"
-sleep 1
+sleep 0.5
 log_message "🛠️ Checking required connections"
 if [ -f "$SCRIPT_PATH5" ]; then
-    sleep 1
+    sleep 0.5
     log_message "✅ $(basename "$SCRIPT_PATH5") found. Running script."
     # Unbuffered Python output, real-time to terminal and log
     sudo PYTHONUNBUFFERED=1 python3 "$SCRIPT_PATH5" 2>&1 | tee -a /var/log/installation_script.log
@@ -1402,14 +1404,14 @@ else
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
 # 🛠️ Add entry to crontab
-sleep 1
+sleep 0.5
 log_message "🔄 Adding entry to crontab if missing."
 if ! crontab -l | grep -q '/usr/local/bin/hosts.py'; then
   (crontab -l 2>/dev/null; echo "@reboot /usr/local/bin/hosts.py") | crontab -
-  sleep 1
+  sleep 0.5
   log_message "🎉 Crontab entry added successfully."
 else
-  sleep 2
+  sleep 0.5
   log_message "ℹ️ Crontab entry already exists."
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
@@ -1430,17 +1432,17 @@ if [ -n "$SSH_CONNECTION" ]; then  # Check if SSH connection exists
 fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 EOF
-  sleep 1
+  sleep 0.5
   log_message "🎉 Entry added to ~/.bashrc successfully."
 else
-  sleep 2
+  sleep 0.5
   log_message "ℹ️ ~/.bashrc entry already exists."
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
-sleep 1
+sleep 0.5
 log_message "🛠️ Verifying URLs"
 if [ -f "$SCRIPT_PATH7" ]; then
-    sleep 1
+    sleep 0.5
     log_message "✅ $(basename "$SCRIPT_PATH7") found. Running script."
     if sudo bash "$SCRIPT_PATH7" | tee -a /var/log/installation_script.log; then
         log_message "🎉 $(basename "$SCRIPT_PATH7") ran successfully."

@@ -5,6 +5,8 @@
 
 set -euo pipefail
 
+sudo apt-get install -y gnupg
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Variables
 # ─────────────────────────────────────────────────────────────────────────────
@@ -82,3 +84,79 @@ else
 fi
 
 log "Installation complete. Enjoy using Docker and Docker Compose!"
+
+# ────────────────────────────────────────────────────────────────────────
+# ASCII Table Drawing Functions
+# ────────────────────────────────────────────────────────────────────────
+
+COL1=68
+widths=($COL1)
+
+draw_headline() {
+  local length=$((COL1 + 2))
+  printf '%*s\n' "$length" '' | tr ' ' '='
+}
+
+draw_border() {
+  local -n w=$1
+  local line="+"
+  for b in "${w[@]}"; do
+    line+=$(printf '%*s' $((b+2)) '' | tr ' ' '-')+
+  done
+  echo "${line%+}+"
+}
+
+print_row() {
+  local -n w=$1
+  shift
+  local cells=("$@")
+  local row="|"
+  for i in "${!w[@]}"; do
+    row+=" $(printf "%-${w[i]}s" "${cells[i]}") "
+  done
+  echo "$row"
+}
+
+# ────────────────────────────────────────────────────────────────────────
+# Feedback zu installierten Komponenten
+# ────────────────────────────────────────────────────────────────────────
+
+echo ""
+draw_headline
+echo " Docker & Docker Compose Statusprüfung "
+draw_headline
+
+if command -v docker &>/dev/null; then
+  docker_ver=$(docker --version)
+  echo "✅ Docker ist installiert: $docker_ver"
+else
+  echo "❌ Docker ist nicht installiert!"
+fi
+
+if docker compose version &>/dev/null; then
+  compose_ver=$(docker compose version)
+  echo "✅ Docker Compose Plugin ist installiert: $compose_ver"
+else
+  echo "❌ Docker Compose ist nicht installiert!"
+fi
+
+# ────────────────────────────────────────────────────────────────────────
+# Docker & Compose Befehle Übersicht
+# ────────────────────────────────────────────────────────────────────────
+
+echo ""
+draw_headline
+echo " Wichtige Docker & Docker Compose Befehle "
+draw_headline
+
+draw_border widths
+print_row widths "docker ps             → Laufende Container anzeigen"
+print_row widths "docker images         → Lokale Images anzeigen"
+print_row widths "docker run hello-world → Testcontainer starten"
+print_row widths "docker stop <ID|NAME> → Container stoppen"
+print_row widths "docker rm <ID|NAME>   → Container löschen"
+print_row widths "docker-compose up -d  → Dienste im Hintergrund starten"
+print_row widths "docker-compose down   → Dienste stoppen & entfernen"
+print_row widths "docker-compose logs   → Logs anzeigen"
+draw_border widths
+echo ""
