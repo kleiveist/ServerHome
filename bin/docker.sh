@@ -116,15 +116,6 @@ print_row() {
   done
   echo "$row"
 }
-# ────────────────────────────────────────────────────────────────────────
-# Sprache automatisch erkennen (DE/EN)
-# ────────────────────────────────────────────────────────────────────────
-LANG=${LANG:-en_US}
-if [[ "$LANG" =~ ^de ]]; then
-  language="de"
-else
-  language="en"
-fi
 
 # ────────────────────────────────────────────────────────────────────────
 # Feedback zu installierten Komponenten
@@ -132,7 +123,7 @@ fi
 
 echo ""
 draw_headline
-echo " Docker & Docker Compose Installation Status "
+echo " Docker & Docker Compose Status Check "
 draw_headline
 
 if command -v docker &>/dev/null; then
@@ -155,34 +146,17 @@ fi
 
 echo ""
 draw_headline
-if [[ "$language" == "de" ]]; then
-  echo " Wichtige Docker & Docker Compose Befehle "
-else
-  echo " Common Docker & Docker Compose Commands "
-fi
+echo " Common Docker & Docker Compose Commands "
 draw_headline
 
 draw_border widths
-
-if [[ "$language" == "de" ]]; then
-  print_row widths "docker ps              → Laufende Container anzeigen"
-  print_row widths "docker images          → Lokale Images anzeigen"
-  print_row widths "docker run hello-world → Testcontainer starten"
-  print_row widths "docker stop <ID|NAME>  → Container stoppen"
-  print_row widths "docker rm <ID|NAME>    → Container löschen"
-  print_row widths "docker-compose up -d   → Dienste im Hintergrund starten"
-  print_row widths "docker-compose down    → Dienste stoppen & entfernen"
-  print_row widths "docker-compose logs    → Logs anzeigen"
-else
-  print_row widths "docker ps              → Show running containers"
-  print_row widths "docker images          → List local images"
-  print_row widths "docker run hello-world → Run test container"
-  print_row widths "docker stop <ID|NAME>  → Stop a container"
-  print_row widths "docker rm <ID|NAME>    → Remove a container"
-  print_row widths "docker-compose up -d   → Start services in background"
-  print_row widths "docker-compose down    → Stop and remove services"
-  print_row widths "docker-compose logs    → Show logs"
-fi
-
+print_row widths "docker ps              → Show running containers"
+print_row widths "docker images          → List local images"
+print_row widths "docker run hello-world → Run test container"
+print_row widths "docker stop <ID|NAME>  → Stop a container"
+print_row widths "docker rm <ID|NAME>    → Remove a container"
+print_row widths "docker-compose up -d   → Start services in background"
+print_row widths "docker-compose down    → Stop and remove services"
+print_row widths "docker-compose logs    → Show logs"
 draw_border widths
 echo ""

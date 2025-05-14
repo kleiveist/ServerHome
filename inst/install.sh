@@ -1216,6 +1216,82 @@ else
 fi
 
 log "Installation complete. Enjoy using Docker and Docker Compose!"
+
+# ────────────────────────────────────────────────────────────────────────
+# ASCII Table Drawing Functions
+# ────────────────────────────────────────────────────────────────────────
+
+COL1=68
+widths=($COL1)
+
+draw_headline() {
+  local length=$((COL1 + 2))
+  printf '%*s\n' "$length" '' | tr ' ' '='
+}
+
+draw_border() {
+  local -n w=$1
+  local line="+"
+  for b in "${w[@]}"; do
+    line+=$(printf '%*s' $((b+2)) '' | tr ' ' '-')+
+  done
+  echo "${line%+}+"
+}
+
+print_row() {
+  local -n w=$1
+  shift
+  local cells=("$@")
+  local row="|"
+  for i in "${!w[@]}"; do
+    row+=" $(printf "%-${w[i]}s" "${cells[i]}") "
+  done
+  echo "$row"
+}
+
+# ────────────────────────────────────────────────────────────────────────
+# Feedback zu installierten Komponenten
+# ────────────────────────────────────────────────────────────────────────
+
+echo ""
+draw_headline
+echo " Docker & Docker Compose Status Check "
+draw_headline
+
+if command -v docker &>/dev/null; then
+  docker_ver=$(docker --version)
+  echo "✅ Docker is installed: $docker_ver"
+else
+  echo "❌ Docker is not installed!"
+fi
+
+if docker compose version &>/dev/null; then
+  compose_ver=$(docker compose version)
+  echo "✅ Docker Compose plugin is installed: $compose_ver"
+else
+  echo "❌ Docker Compose is not installed!"
+fi
+
+# ────────────────────────────────────────────────────────────────────────
+# Docker & Compose Befehle Übersicht (DE/EN)
+# ────────────────────────────────────────────────────────────────────────
+
+echo ""
+draw_headline
+echo " Common Docker & Docker Compose Commands "
+draw_headline
+
+draw_border widths
+print_row widths "docker ps              → Show running containers"
+print_row widths "docker images          → List local images"
+print_row widths "docker run hello-world → Run test container"
+print_row widths "docker stop <ID|NAME>  → Stop a container"
+print_row widths "docker rm <ID|NAME>    → Remove a container"
+print_row widths "docker-compose up -d   → Start services in background"
+print_row widths "docker-compose down    → Stop and remove services"
+print_row widths "docker-compose logs    → Show logs"
+draw_border widths
+echo ""
 EOF
   process_script_creation "$SCRIPT_PATH8"
   # 📝 SCRIPT_PATH8 processed successfully
