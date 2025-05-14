@@ -116,6 +116,15 @@ print_row() {
   done
   echo "$row"
 }
+# ────────────────────────────────────────────────────────────────────────
+# Sprache automatisch erkennen (DE/EN)
+# ────────────────────────────────────────────────────────────────────────
+LANG=${LANG:-en_US}
+if [[ "$LANG" =~ ^de ]]; then
+  language="de"
+else
+  language="en"
+fi
 
 # ────────────────────────────────────────────────────────────────────────
 # Feedback zu installierten Komponenten
@@ -123,40 +132,57 @@ print_row() {
 
 echo ""
 draw_headline
-echo " Docker & Docker Compose Statusprüfung "
+echo " Docker & Docker Compose Installation Status "
 draw_headline
 
 if command -v docker &>/dev/null; then
   docker_ver=$(docker --version)
-  echo "✅ Docker ist installiert: $docker_ver"
+  echo "✅ Docker is installed: $docker_ver"
 else
-  echo "❌ Docker ist nicht installiert!"
+  echo "❌ Docker is not installed!"
 fi
 
 if docker compose version &>/dev/null; then
   compose_ver=$(docker compose version)
-  echo "✅ Docker Compose Plugin ist installiert: $compose_ver"
+  echo "✅ Docker Compose plugin is installed: $compose_ver"
 else
-  echo "❌ Docker Compose ist nicht installiert!"
+  echo "❌ Docker Compose is not installed!"
 fi
 
 # ────────────────────────────────────────────────────────────────────────
-# Docker & Compose Befehle Übersicht
+# Docker & Compose Befehle Übersicht (DE/EN)
 # ────────────────────────────────────────────────────────────────────────
 
 echo ""
 draw_headline
-echo " Wichtige Docker & Docker Compose Befehle "
+if [[ "$language" == "de" ]]; then
+  echo " Wichtige Docker & Docker Compose Befehle "
+else
+  echo " Common Docker & Docker Compose Commands "
+fi
 draw_headline
 
 draw_border widths
-print_row widths "docker ps             → Laufende Container anzeigen"
-print_row widths "docker images         → Lokale Images anzeigen"
-print_row widths "docker run hello-world → Testcontainer starten"
-print_row widths "docker stop <ID|NAME> → Container stoppen"
-print_row widths "docker rm <ID|NAME>   → Container löschen"
-print_row widths "docker-compose up -d  → Dienste im Hintergrund starten"
-print_row widths "docker-compose down   → Dienste stoppen & entfernen"
-print_row widths "docker-compose logs   → Logs anzeigen"
+
+if [[ "$language" == "de" ]]; then
+  print_row widths "docker ps              → Laufende Container anzeigen"
+  print_row widths "docker images          → Lokale Images anzeigen"
+  print_row widths "docker run hello-world → Testcontainer starten"
+  print_row widths "docker stop <ID|NAME>  → Container stoppen"
+  print_row widths "docker rm <ID|NAME>    → Container löschen"
+  print_row widths "docker-compose up -d   → Dienste im Hintergrund starten"
+  print_row widths "docker-compose down    → Dienste stoppen & entfernen"
+  print_row widths "docker-compose logs    → Logs anzeigen"
+else
+  print_row widths "docker ps              → Show running containers"
+  print_row widths "docker images          → List local images"
+  print_row widths "docker run hello-world → Run test container"
+  print_row widths "docker stop <ID|NAME>  → Stop a container"
+  print_row widths "docker rm <ID|NAME>    → Remove a container"
+  print_row widths "docker-compose up -d   → Start services in background"
+  print_row widths "docker-compose down    → Stop and remove services"
+  print_row widths "docker-compose logs    → Show logs"
+fi
+
 draw_border widths
 echo ""

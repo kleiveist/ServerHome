@@ -109,62 +109,62 @@ sudo wget -qO /usr/local/bin/install.sh \
 
 3) Initialize system services
    ```bash
-    sudo systemv.sh
+   sudo systemv.sh
    ```
 
 4) Execute auxiliary server scripts
    ```bash
-    skripts.sh
+   skripts.sh
    ```
 
 5) Display help page
    ```bash
-    help.sh
+   help.sh
    ```
 
 6) Perform system upgrade
    ```bash
-    upgrade.sh
+   upgrade.sh
    ```
 
 7) Update hosts configuration
    ```bash
-    hosts.py
+   hosts.py
    ```
 
 8) Run network connectivity test
    ```bash
-    ping.py
+   ping.py
    ```
 
 9) Concatenate and display files
    ```bash
-    cat.sh
+   cat.sh
    ```
 
 10) Open URLs from list
    ```bash
-    urls.sh
+   urls.sh
    ```
 
 11) Manage Docker containers
    ```bash
-    docker.sh
+   docker.sh
    ```
 
 12) Execute custom script 09.sh
    ```bash
-    game.py
+   game.py
    ```
 
 13) Execute custom script 10.sh
    ```bash
-    10.sh
+   10.sh
    ```
 
 14) Execute custom script 11.sh
    ```bash
-    11.sh
+   11.sh
    ```
 
 ---
@@ -216,6 +216,20 @@ sudo curl -fsSL \
   https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/cat.sh \
   -o /usr/local/bin/cat.sh \
 && sudo chmod +x /usr/local/bin/cat.sh
+```
+
+```bash
+sudo curl -fsSL \
+  https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/urls.sh \
+  -o /usr/local/bin/urls.sh \
+&& sudo chmod +x /usr/local/bin/urls.sh
+```
+
+```bash
+sudo curl -fsSL \
+  https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/docker.sh \
+  -o /usr/local/bin/docker.sh \
+&& sudo chmod +x /usr/local/bin/docker.sh
 ```
 
 ```bash
