@@ -154,7 +154,7 @@ sudo wget -qO /usr/local/bin/install.sh \
 
 12) Execute custom script 09.sh
    ```bash
-    09.sh
+    game.py
    ```
 
 13) Execute custom script 10.sh
@@ -216,6 +216,13 @@ sudo curl -fsSL \
   https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/cat.sh \
   -o /usr/local/bin/cat.sh \
 && sudo chmod +x /usr/local/bin/cat.sh
+```
+
+```bash
+sudo curl -fsSL \
+  https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/game.py \
+  -o /usr/local/bin/game.py \
+&& sudo chmod +x /usr/local/bin/game.py
 ```
 ---
 

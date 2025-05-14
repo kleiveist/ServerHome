@@ -92,41 +92,140 @@ sudo wget -qO /usr/local/bin/install.sh \
 
 ## Verwendung
 
-1. Installationsskript ausführen:
+1. Run the installer script:
 
    ```bash
    sudo install.sh
    ```
 
-2. Verfügbare Skripte auflisten:
+2. List available scripts:
 
    ```bash
    ls /usr/local/bin
    ```
 
-3. Beispiel: Ping-Test (Python)
+---
 
+3) Initialize system services
    ```bash
-   ping_test.py
+    sudo systemv.sh
    ```
-4. Hilfe seite Skripte:
 
+4) Execute auxiliary server scripts
    ```bash
-   help_page.sh
+    skripts.sh
+   ```
+
+5) Display help page
+   ```bash
+    help.sh
+   ```
+
+6) Perform system upgrade
+   ```bash
+    upgrade.sh
+   ```
+
+7) Update hosts configuration
+   ```bash
+    hosts.py
+   ```
+
+8) Run network connectivity test
+   ```bash
+    ping.py
+   ```
+
+9) Concatenate and display files
+   ```bash
+    cat.sh
+   ```
+
+10) Open URLs from list
+   ```bash
+    urls.sh
+   ```
+
+11) Manage Docker containers
+   ```bash
+    docker.sh
+   ```
+
+12) Execute custom script 09.sh
+   ```bash
+    game.py
+   ```
+
+13) Execute custom script 10.sh
+   ```bash
+    10.sh
+   ```
+
+14) Execute custom script 11.sh
+   ```bash
+    11.sh
    ```
 ---
 
-## Lizenz
-
-Dieses Projekt steht unter der MIT License. Siehe [LICENSE](LICENSE) für Details.
----
 
 ### Using curl help_page.sh
 
 ```bash
 sudo curl -fsSL \
-  https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-helb/help_page.sh \
-  -o /usr/local/bin/help_page.sh \
-&& sudo chmod +x /usr/local/bin/help_page.sh
+  https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-management/systemv.sh \
+  -o /usr/local/bin/systemv.sh \
+&& sudo chmod +x /usr/local/bin/systemv.sh
 ```
+
+```bash
+sudo curl -fsSL \
+  https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-helb/skripts.sh \
+  -o /usr/local/bin/skripts.sh \
+&& sudo chmod +x /usr/local/bin/skripts.sh
+```
+
+```bash
+sudo curl -fsSL \
+  https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-helb/help.sh \
+  -o /usr/local/bin/help.sh \
+&& sudo chmod +x /usr/local/bin/help.sh
+```
+
+```bash
+sudo curl -fsSL \
+  https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-management/upgrade.sh \
+  -o /usr/local/bin/upgrade.sh \
+&& sudo chmod +x /usr/local/bin/upgrade.sh
+```
+```bash
+sudo curl -fsSL \
+  https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/hosts.py \
+  -o /usr/local/bin/hosts.py \
+&& sudo chmod +x /usr/local/bin/hosts.py
+```
+```bash
+sudo curl -fsSL \
+  https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/ping.py \
+  -o /usr/local/bin/ping.py \
+&& sudo chmod +x /usr/local/bin/ping.py
+```
+
+```bash
+sudo curl -fsSL \
+  https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/cat.sh \
+  -o /usr/local/bin/cat.sh \
+&& sudo chmod +x /usr/local/bin/cat.sh
+```
+
+```bash
+sudo curl -fsSL \
+  https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/game.py \
+  -o /usr/local/bin/game.py \
+&& sudo chmod +x /usr/local/bin/game.py
+
+---
+## Lizenz
+
+Dieses Projekt steht unter der MIT License. Siehe [LICENSE](LICENSE) für Details.
+
 ---
