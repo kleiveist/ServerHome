@@ -109,7 +109,7 @@ sudo wget -qO /usr/local/bin/install.sh \
 
 3) Initialize system services
    ```bash
-sudo systemv.sh
+    sudo systemv.sh
    ```
 
 4) Execute auxiliary server scripts
@@ -169,12 +169,6 @@ sudo systemv.sh
 
 ---
 
-## License
-
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
-
----
-
 ### Using curl
 
 ```bash
@@ -223,3 +217,10 @@ sudo curl -fsSL \
   -o /usr/local/bin/cat.sh \
 && sudo chmod +x /usr/local/bin/cat.sh
 ```
+---
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+---
