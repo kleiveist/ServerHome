@@ -136,9 +136,12 @@ sudo curl -fsSL \
 ---
 | Skript                                              | Installationsbefehl                                                                                                                                                                    |
 |-----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ```bash
+|
+```bash
 help_page.sh
-```                                                   | ```bash
+```
+                                                   |
+```bash
 sudo curl -fsSL https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-helb/help_page.sh -o /usr/local/bin/help_page.sh && sudo chmod +x /usr/local/bin/help_page.sh
 ```                                                    |
 | ```bash
