@@ -40,14 +40,16 @@ def main(stdscr):
             y = random.randint(0, height - 1)
             asteroids.append({'x': width - len(symbol) - 1, 'y': y, 'symbol': symbol})
 
-        # Bewegung (optional mit dt skalieren)
+        # Bewegung
         for a in asteroids:
-            a['x'] -= 1  # Würdest du Geschwindigkeit variabel machen, dann a['x'] -= speed * dt
+            a['x'] -= 1
+
+        # Entferne Asteroiden, die aus dem Bild gelaufen sind
+        asteroids = [a for a in asteroids if a['x'] >= 0]
 
         # Zeichnen
         for a in asteroids:
-            if 0 <= a['x'] < width:
-                stdscr.addstr(a['y'], a['x'], a['symbol'])
+            stdscr.addstr(a['y'], a['x'], a['symbol'])
         stdscr.addstr(spaceship_y, spaceship_x, SPACESHIP)
 
         # Kollision
@@ -59,8 +61,11 @@ def main(stdscr):
 
         stdscr.refresh()
 
-        # Framerate-Kontrolle
+        # Framerate-Kontrolle für ~60 FPS
         elapsed = time.perf_counter() - now
         to_sleep = TARGET_DT - elapsed
         if to_sleep > 0:
             time.sleep(to_sleep)
+
+if __name__ == "__main__":
+    curses.wrapper(main)
