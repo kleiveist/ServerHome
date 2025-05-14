@@ -2,14 +2,20 @@
 ├── 📝 InContent.txt
 ├── 📝 README.md
 ├── 📝 READMEDE.md
+├── 📂 bin/
+│   ├── 📄 cat.sh
+│   ├── 📄 docker.sh
+│   ├── 🐍 hosts.py
+│   ├── 🐍 ping.py
+│   └── 📄 urls.sh
 ├── 📂 inst/
 │   └── 📄 install.sh
 ├── 📂 server-helb/
-│   └── 📄 help_page.sh
-├── 📂 server-management/
-├── 📂 utilities/
-│   └── 🐍 ping_test.py
-└── 📂 webapp-install/
+│   ├── 📄 help.sh
+│   └── 📄 skripts.sh
+└── 📂 server-management/
+    ├── 📄 systemv.sh
+    └── 📄 upgrade.sh
 
 === Datei-Inhalte ===
 
@@ -123,11 +129,28 @@ sudo wget -qO /usr/local/bin/install.sh \
    ping_test.py
    ```
 
+4. help page scripts:
+
+   ```bash
+   help_page.sh
+   ```
+
 ---
 
 ## License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+---
+### Using curl help_page.sh
+
+```bash
+sudo curl -fsSL \
+  https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-helb/help_page.sh \
+  -o /usr/local/bin/help_page.sh \
+&& sudo chmod +x /usr/local/bin/help_page.sh
+```
+---
 
 📝 --- READMEDE.md ---
 # ServerHome
@@ -235,47 +258,122 @@ sudo wget -qO /usr/local/bin/install.sh \
    ```bash
    ping_test.py
    ```
+4. Hilfe seite Skripte:
 
+   ```bash
+   help_page.sh
+   ```
 ---
 
 ## Lizenz
 
 Dieses Projekt steht unter der MIT License. Siehe [LICENSE](LICENSE) für Details.
+---
 
-🐍 --- utilities\ping_test.py ---
+### Using curl help_page.sh
+
+```bash
+sudo curl -fsSL \
+  https://raw.githubusercontent.com/kleiveist/ServerHome/main/server-helb/help_page.sh \
+  -o /usr/local/bin/help_page.sh \
+&& sudo chmod +x /usr/local/bin/help_page.sh
+```
+---
+
+🐍 --- bin\hosts.py ---
 #!/usr/bin/env python3
-
-import subprocess
-import time
+import os
+import socket
 from datetime import datetime
 
-# Serverliste
+HOSTS_FILE = "/etc/hosts"
+
+# Determine IPs from ENV or (for IP1) via socket fallback
+def get_ip(env_var):
+    ip = os.getenv(env_var)
+    if ip:
+        return ip
+    if env_var == "IP1":
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            s.connect(("8.8.8.8", 80))
+            return s.getsockname()[0]
+        finally:
+            s.close()
+    return None
+
+IP1 = get_ip("IP1")
+
+# Domains come from Bash wrapper via ENV: LOCAL_DOMAIN, GLOBAL_DOMAIN
+# Fallback to domain.local and domain.global if unset
+local = os.getenv("LOCAL_DOMAIN", "domain.local")
+global_dom = os.getenv("GLOBAL_DOMAIN", "domain.global")
+# Hardcoded lists:
+DOMAINS_IP1 = ["book.local"]
+DOMAINS_IP2 = ["book.com"]
+
+# Logging function
+def log(msg):
+    print(f"{datetime.now():%Y-%m-%d %H:%M:%S} - {msg}")
+
+# Add entries if not present
+def add_entries(ip, domains, header):
+    if not ip or not domains:
+        return
+    with open(HOSTS_FILE, "r") as f:
+        lines = f.readlines()
+    if not any(header in line for line in lines):
+        with open(HOSTS_FILE, "a") as f:
+            f.write(f"{header}\n")
+    with open(HOSTS_FILE, "a") as f:
+        for d in domains:
+            if d and not any(d in line.split() for line in lines):
+                f.write(f"{ip} {d}\n")
+                log(f"Entry added: {ip} {d}")
+
+if __name__ == "__main__":
+    if os.geteuid() != 0:
+        print("This script must be run as root!")
+        exit(1)
+
+    add_entries(IP1, DOMAINS_IP1, "#====== LOCAL_DOMAIN ======")
+    add_entries(IP1, DOMAINS_IP2, "#====== GLOBAL_DOMAIN ======")
+🐍 --- bin\ping.py ---
+#!/usr/bin/env python3
+import os
+import socket
+import subprocess
+from datetime import datetime
+
+# 1) Try ENV variable, 2) fallback to socket query
+def get_server_ip():
+    if ip := os.getenv("SERVER_IP"):
+        return ip
+    # Fallback
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(("8.8.8.8", 80))
+        return s.getsockname()[0]
+    finally:
+        s.close()
+
+# Pass Bash variable as ENV
+SERVER_IP = get_server_ip()
+# Prefix from first three octets
+PREFIX = ".".join(SERVER_IP.split('.')[:3])
+
 HOSTS = {
-# =================IP====================
     "1.1.1.1": "Cloudflare DNS",
     "8.8.8.8": "Google DNS",
-#    "88.88.88.88": "ServerVPN",
-#    "88.88.88.1": "RouterHome",
-#    "88.88.88.4": "Pi-hole DNS",
-#    "88.88.88.5": "VPN Server",
-#    "88.88.88.88": "cloud-server",
-#    "88.88.88.88": "office server",
-# =================Domain====================
-    "domain123.com": "ServerVPN Domain",
-#    "cloud.local": "cloud-domain2",
-#    "nextcloud.local": "cloud-domain2",
-#    "office.local": "office-domain1",
-#    "onlyoffice.local": "office-domain2",
-#    "officeserver.local": "office-domain3",
+    SERVER_IP: "Server",
+    f"{PREFIX}.1": "RouterHome",
+    f"{PREFIX}.4": "Pi-hole DNS",
+    f"{PREFIX}.5": "VPN Server",
+    "$LOCAL_DOMAIN": "book-domain1",
+    "$GLOBAL_DOMAIN": "book-domain2",
 }
 
-def log(msg: str):
-    """Gibt msg mit Zeitstempel und 0,5 s Pause aus."""
-    ts = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-    print(f"[{ts}] {msg}")
-    time.sleep(0.5)
-
-def ping_host(host: str) -> bool:
+def ping_host(host):
     try:
         subprocess.run(
             ["ping", "-c", "3", "-W", "2", host],
@@ -288,26 +386,23 @@ def ping_host(host: str) -> bool:
         return False
 
 def main():
-    log("==== Ping-Test starten ====")
-    failed_hosts = []
-
+    print("==== Starting Ping Test ====")
+    print(f"Date: {datetime.now():%Y-%m-%d %H:%M:%S}\\n")
+    failed = []
     for host, desc in HOSTS.items():
-        log(f"Pinge {host} ({desc})…")
+        print(f"Pinging {host} ({desc})…")
         if ping_host(host):
-            log(f"{host} ({desc}) ist erreichbar ✅")
+            print(f"{host} ({desc}) is reachable ✅")
         else:
-            log(f"{host} ({desc}) ist nicht erreichbar ❌")
-            failed_hosts.append(f"{host} ({desc})")
-
-    log("==== Ping-Test abgeschlossen ====")
-    if failed_hosts:
-        log("==== Fehlgeschlagene Hosts ====")
-        for f in failed_hosts:
-            log(f)
+            failed.append(f"{host} ({desc})")
+            print(f"{host} ({desc}) is unreachable ❌")
+        print()
+    print("==== Ping Test Completed ====")
+    if failed:
+        print("==== Failed Hosts ====")
+        print(*failed, sep="\n")
     else:
-        log("Alle Hosts sind erreichbar ✅")
-
-    input("==== [Enter], um das Skript zu beenden ====\n")
+        print("All hosts are reachable ✅")
 
 if __name__ == "__main__":
     main()
