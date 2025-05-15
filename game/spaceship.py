@@ -1,15 +1,25 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Mini-Spaceshooter in einer Datei – modular aufgebaut
+"""
 import curses
 import random
 import time
 
-SHIELD_PICKUP       = "=[)(]="   # Symbol für Shield-Pickup
-SHIELD_SPAWN_CHANCE = 0.002      # Chance pro Frame
-SHIELD_MIN_COOLDOWN = 10.0        # Mindestabstand in Sekunden
-ASTEROID_SYMBOLSX   = ["####", "##", "#", "###", "#####"]
-ASTEROID_SYMBOLSY   = ["####", "##", "#", "###", "#####"]
-SPACESHIP           = "===>"
-NEUTRON_STAR        = [
+# ── Konfiguration ────────────────────────────────────────────────────────────
+FPS                 = 60
+TARGET_DT           = 1.0 / FPS
+SPACESHIP_SYMBOL    = "===>"
+SHIELD_PICKUP_SYM   = "=[)(]="
+SHIELD_SPAWN_CHANCE = 0.004      # pro Frame
+SHIELD_COOLDOWN     = 5.0       # Sekunden
+
+ASTEROID_SMALL      = ["#", "##", "###", "####", "#####"]
+ASTEROID_BIG_X      = ["####", "##", "#", "###", "#####"]
+ASTEROID_BIG_Y      = ["####", "##", "#", "###", "#####"]
+
+NEUTRON_STAR_SPRITE = [
     "  OOOO  ",
     " OOOOOO ",
     "OOOOOOOO",
@@ -20,254 +30,353 @@ NEUTRON_STAR        = [
     "  OOOO  "
 ]
 
-def main(stdscr):
-    curses.curs_set(0)
-    stdscr.nodelay(True)
-    height, width = stdscr.getmaxyx()
+# ── Basis-Entity ─────────────────────────────────────────────────────────────
+class Entity:
+    def __init__(self, x: int, y: int, symbol: str):
+        self.x, self.y = x, y
+        self.symbol    = symbol  # kann auch multi-line sein
 
-    # Startzustände
-    spaceship_y       = height // 2
-    spaceship_x       = width // 2 - len(SPACESHIP) // 2
-    asteroids         = []
-    shield_items      = []
-    shield_level      = 0
-    last_shield_spawn = time.perf_counter() - SHIELD_MIN_COOLDOWN
-    streams           = []
-    neutron_spawned   = False    # Stern aktuell aktiv
-    star_used         = False    # Stern wurde schon einmal gespawnt
-    star_pos          = {'x': 0, 'y': 1}
-    god_mode          = False
-    key_buffer        = []
-    star_used         = False    # Stern wurde schon einmal gespawnt
-    second_star_used  = False    # zweiter Spawn-Flag
+    def move(self, dx=0, dy=0):
+        self.x += dx
+        self.y += dy
 
-    TARGET_FPS = 60
-    TARGET_DT  = 1.0 / TARGET_FPS
-    prev_time  = time.perf_counter()
-    game_start = prev_time
-
-    while True:
-        now     = time.perf_counter()
-        dt      = now - prev_time
-        prev_time = now
-        elapsed = now - game_start
-
-        stdscr.clear()
-        # Spieltimer oben rechts
-        mins = int(elapsed // 60)
-        secs = int(elapsed % 60)
-        timer_str = f"{mins:02d}:{secs:02d}"
-        stdscr.addstr(0, width - len(timer_str) - 1, timer_str)
-        # God-Mode Hinweis
-        if god_mode:
-            stdscr.addstr(1, width - len("you are jesus") - 1, "you are jesus")
-
-        # Eingabe
-        key = stdscr.getch()
-        if key != -1:
-            if   key == curses.KEY_UP   and spaceship_y > 1:
-                spaceship_y -= 1
-            elif key == curses.KEY_DOWN and spaceship_y < height - 2:
-                spaceship_y += 1
-            elif key == ord('q'):
-                break
-            # 'god' toggeln
-            key_buffer.append(key)
-            if len(key_buffer) > 3:
-                key_buffer.pop(0)
-            if key_buffer == [ord('g'), ord('o'), ord('d')]:
-                god_mode = not god_mode
-                if god_mode:
-                    shield_level = 3
-                key_buffer.clear()
-
-        # Schild-Pickup spawnen
-        if now - last_shield_spawn >= SHIELD_MIN_COOLDOWN and random.random() < SHIELD_SPAWN_CHANCE:
-            y0 = random.randint(1, height - 2)
-            shield_items.append({
-                'x': width - len(SHIELD_PICKUP) - 1,
-                'y': y0,
-                'symbol': SHIELD_PICKUP
-            })
-            last_shield_spawn = now
-
-        # Dust-Modus 100–125 s: nur Mini-Asteroiden "#"
-        if 100 <= elapsed < 125:
-            if random.random() < 0.2:
-                y0 = random.randint(1, height - 2)
-                asteroids.append({
-                    'x': width - 2,
-                    'y': y0,
-                    'symbol': "#",
-                    'h': 1
-                })
-
-        # ─── Asteroiden spawnen ───
-        elif elapsed >= 60:
-            # ab 1:00 große Asteroiden mit 20 % Chance,
-            # ab 2:30 (150 s) 100 % (dauerhaft)
-            spawn_chance = 1.0 if elapsed >= 150 else 0.2
-            if random.random() < spawn_chance:
-                sx = random.choice(ASTEROID_SYMBOLSX)
-                sy = random.choice(ASTEROID_SYMBOLSY)
-                y0 = random.randint(1, height - 2 - (1 if elapsed >= 60 else 0))
-                asteroids.append({
-                    'x': width - len(sx) - 1,
-                    'y': y0,
-                    'symbol_x': sx,
-                    'symbol_y': sy,
-                    'h': 2
-                })
-
-        else:
-            # kleiner Asteroiden-Spawn wie gehabt
-            if random.random() < 0.2:
-                s  = random.choice(ASTEROID_SYMBOLSX)
-                y0 = random.randint(1, height - 2)
-                asteroids.append({
-                    'x': width - len(s) - 1,
-                    'y': y0,
-                    'symbol': s,
-                    'h': 1
-                })
-
-        # ─── Neutronenstern spawnen ───
-        if not star_used and elapsed >= 135:
-            neutron_spawned  = True
-            star_used        = True
-            star_pos.update({'x': width, 'y': 1})
-            streams.clear()
-        # zweiter Spawn bei 3:00 (180 s)
-        if not second_star_used and elapsed >= 180:
-            neutron_spawned    = True
-            second_star_used   = True
-            star_pos.update({'x': width, 'y': 1})
-            streams.clear()
-        # Bewegung des Sterns
-        if neutron_spawned:
-            star_pos['x'] -= 1
-            if star_pos['x'] + len(NEUTRON_STAR[0]) < 0:
-                neutron_spawned = False
-                streams.clear()
-
-        # Bewegung aller Objekte
-        for a in asteroids:    a['x'] -= 1
-        for s in shield_items: s['x'] -= 1
-        for p in streams:      p['y'] += 1
-
-        # Bereinigen
-        asteroids = [
-            a for a in asteroids
-            if (a['h'] == 1 and a['x'] + len(a['symbol']) - 1 >= 0)
-            or (a['h'] == 2 and a['x'] + max(len(a['symbol_x']), len(a['symbol_y'])) - 1 >= 0)
-        ]
-        shield_items = [
-            s for s in shield_items
-            if s['x'] + len(s['symbol']) - 1 >= 0
-        ]
-        streams = [p for p in streams if p['y'] < height]
-
-        # Zeichnen: Asteroiden & Pickups
-        for a in asteroids:
-            if 0 <= a['x'] < width and 0 <= a['y'] < height:
-                if a['h'] == 1:
-                    stdscr.addstr(a['y'], a['x'], a['symbol'])
-                else:
-                    if a['y'] + 1 < height:
-                        stdscr.addstr(a['y'], a['x'],     a['symbol_x'])
-                        stdscr.addstr(a['y']+1, a['x'], a['symbol_y'])
-        for s in shield_items:
-            if 0 <= s['x'] < width and 0 <= s['y'] < height:
-                stdscr.addstr(s['y'], s['x'], s['symbol'])
-
-        # ─── Neutronenstern zeichnen + Partikel erzeugen ───
-        if neutron_spawned:
-            for i, row in enumerate(NEUTRON_STAR):
-                y = star_pos['y'] + i
-                x = star_pos['x']
-                if 0 <= y < height and x < width:
+    def draw(self, scr: curses.window):
+        h, w = scr.getmaxyx()
+        if isinstance(self.symbol, list):        # mehrzeilig (Neutron-Star)
+            for i, row in enumerate(self.symbol):
+                ry = self.y + i
+                if 0 <= ry < h and 0 <= self.x < w:
                     try:
-                        stdscr.addstr(y, x, row)
+                        scr.addstr(ry, self.x, row)
                     except curses.error:
                         pass
-            # Partikel
-            for col in range(len(NEUTRON_STAR[0])):
-                if random.random() < 0.3:
-                    streams.append({
-                        'x': star_pos['x'] + col,
-                        'y': star_pos['y'] + len(NEUTRON_STAR)
-                    })
-
-        # Zeichnen Partikel & Kollisions-Check
-        hit = False
-        for p in streams:
-            text = "///"
-            if (0 <= p['y'] < height and 0 <= p['x'] and p['x'] + len(text) <= width):
+        else:                                    # einzeilig
+            if 0 <= self.y < h and 0 <= self.x < w:
                 try:
-                    stdscr.addstr(p['y'], p['x'], text)
+                    scr.addstr(self.y, self.x, self.symbol)
                 except curses.error:
                     pass
-            # Partikel-Kollision mit Raumschiff
-            if p['y'] == spaceship_y and spaceship_x <= p['x'] < spaceship_x + len(SPACESHIP):
-                if shield_level < 3 and not god_mode:
-                    hit = True
+
+# ── Spezielle Entities ───────────────────────────────────────────────────────
+class Spaceship(Entity):
+    def __init__(self, x, y):
+        super().__init__(x, y, SPACESHIP_SYMBOL)
+        self.shield   = 0
+        self.god_mode = False
+        self.key_buf  = []
+
+    def toggle_god(self):
+        self.god_mode = not self.god_mode
+        if self.god_mode:
+            self.shield = 3
+
+class Asteroid(Entity):
+    """h = 1 kleiner, h = 2 großer (2-zeiliger) Asteroid"""
+    def __init__(self, x, y, h=1):
+        if h == 1:
+            sym = random.choice(ASTEROID_SMALL)
+            super().__init__(x, y, sym)
+        else:
+            sx = random.choice(ASTEROID_BIG_X)
+            sy = random.choice(ASTEROID_BIG_Y)
+            super().__init__(x, y, [sx, sy])
+        self.h = h
+
+class ShieldPickup(Entity):
+    def __init__(self, x, y):
+        super().__init__(x, y, SHIELD_PICKUP_SYM)
+
+class Stream(Entity):
+    def __init__(self, x, y):
+        super().__init__(x, y, "///")
+
+class NeutronStar(Entity):
+    def __init__(self, x, y):
+        super().__init__(x, y, NEUTRON_STAR_SPRITE)
+
+# ── Haupt-Game-Klasse ────────────────────────────────────────────────────────
+class Game:
+    def __init__(self, scr: curses.window):
+        self.scr = scr
+        curses.curs_set(0)
+        self.scr.nodelay(True)
+        self.h, self.w = self.scr.getmaxyx()
+
+        # Spielobjekte
+        self.ship      = Spaceship(self.w // 2, self.h // 2)
+        self.asteroids = []
+        self.pickups   = []
+        self.streams   = []
+        self.star      = None
+
+        # Timing / Status
+        self.start_time        = time.perf_counter()
+        self.last_shield_spawn = self.start_time - SHIELD_COOLDOWN
+        self.star_used         = False
+        self.second_star_used  = False
+
+    # ── Spawner ────────────────────────────────────────────────────────────
+    def spawn_shield(self, now):
+        if (now - self.last_shield_spawn >= SHIELD_COOLDOWN and
+                random.random() < SHIELD_SPAWN_CHANCE):
+            y = random.randint(1, self.h - 2)
+            self.pickups.append(ShieldPickup(self.w - len(SHIELD_PICKUP_SYM) - 1, y))
+            self.last_shield_spawn = now
+
+    def spawn_asteroid(self, elapsed: float):
+        # 0–25 s: 20 % Dust-Phase (nur '#')
+        if 3 <= elapsed < 25:
+            if random.random() < 0.2:                      # hier 0.5 = 50 %; änderbar auf 0.1–1.0
+                y = random.randint(1, self.h - 2)
+                a = Asteroid(self.w - 2, y, h=1)
+                a.symbol = "#"                            # zwingt '#'
+                self.asteroids.append(a)
+            return
+        # 25–60 s: 50 % Mini
+        if 25 <= elapsed < 60:
+            if random.random() < 0.3:
+                y = random.randint(1, self.h-2)
+                self.asteroids.append(Asteroid(self.w-2, y, h=1))
+            return
+        # 60–80 s: 20 % Große
+        if 60 <= elapsed < 80:
+            if random.random() < 0.2:
+                y = random.randint(1, self.h-3)
+                self.asteroids.append(Asteroid(self.w-6, y, h=2))
+            return
+        # 80–100 s: 80 % Mini
+        if 80 <= elapsed < 98:
+            if random.random() < 0.5:
+                y = random.randint(1, self.h-2)
+                self.asteroids.append(Asteroid(self.w-2, y, h=1))
+            return
+        # 100–125 s: 100 % Dust-Phase (nur '#')
+        if 100 <= elapsed < 130:
+            if random.random() < 0.4:                      # hier 1.0 = 100 %; änderbar auf 0.1–1.0
+                y = random.randint(1, self.h - 2)
+                a = Asteroid(self.w - 2, y, h=1)
+                a.symbol = "#"                            # zwingt '#'
+                self.asteroids.append(a)
+            return
+        # 125–150 s: 100 % Mini-Asteroiden
+        if 140 <= elapsed < 150:
+            if random.random() < 0.6:               # <- hier auf 0.8 ändern für 80 %
+                y = random.randint(1, self.h-2)
+                self.asteroids.append(Asteroid(self.w-2, y, h=1))
+            return
+        # 150–155 s: 100 % Große Asteroiden
+        if 150 <= elapsed < 155:
+            if random.random() < 0.5:               # <- hier 0.5 für 50 %, etc.
+                y = random.randint(1, self.h-3)
+                self.asteroids.append(Asteroid(self.w-6, y, h=2))
+            return
+        # 100–125 s: 100 % Dust-Phase (nur '#')
+        if 160 <= elapsed < 182:
+            if random.random() < 0.4:                      # hier 1.0 = 100 %; änderbar auf 0.1–1.0
+                y = random.randint(1, self.h - 2)
+                a = Asteroid(self.w - 2, y, h=1)
+                a.symbol = "#"                            # zwingt '#'
+                self.asteroids.append(a)
+            return
+        # 190–200 s: 100 % Große Asteroiden
+        if 185 <= elapsed < 200:
+            if random.random() < 0.4:               # <- ebenfalls anpassbar
+                y = random.randint(1, self.h-3)
+                self.asteroids.append(Asteroid(self.w-6, y, h=2))
+            return
+        # 100–125 s: 100 % Dust-Phase (nur '#')
+        if 202 <= elapsed < 250:
+            if random.random() < 0.4:                      # hier 1.0 = 100 %; änderbar auf 0.1–1.0
+                y = random.randint(1, self.h - 2)
+                a = Asteroid(self.w - 2, y, h=1)
+                a.symbol = "#"                            # zwingt '#'
+                self.asteroids.append(a)
+            return
+        # 125–150 s: 100 % Mini-Asteroiden
+        if 210 <= elapsed < 300:
+            if random.random() < 0.4:               # <- hier auf 0.8 ändern für 80 %
+                y = random.randint(1, self.h-2)
+                self.asteroids.append(Asteroid(self.w-2, y, h=1))
+            return
+        # 100–125 s: 100 % Dust-Phase (nur '#')
+        if 300 <= elapsed < 1200:
+            if random.random() < 1.4:                      # hier 1.0 = 100 %; änderbar auf 0.1–1.0
+                y = random.randint(1, self.h - 2)
+                a = Asteroid(self.w - 2, y, h=1)
+                a.symbol = "#"                            # zwingt '#'
+                self.asteroids.append(a)
+            return
+    def spawn_neutron_star(self, elapsed):
+        # erster Spawn ab 135 s
+        if not self.star_used and elapsed >= 135:
+            self.star = NeutronStar(self.w, 1)
+            self.star_used = True
+            self.streams.clear()
+        # zweiter Spawn ab 180 s
+        if not self.second_star_used and elapsed >= 180:
+            self.star = NeutronStar(self.w, 1)
+            self.second_star_used = True
+            self.streams.clear()
+        # Dritter Spawn ab 220 s
+        if not self.second_star_used and elapsed >= 220:
+            self.star = NeutronStar(self.w, 1)
+            self.second_star_used = True
+            self.streams.clear()
+        # Spawn ab 310 s
+        if not self.second_star_used and elapsed >= 310:
+            self.star = NeutronStar(self.w, 1)
+            self.second_star_used = True
+            self.streams.clear()
+        # Spawn ab 312 s
+        if not self.second_star_used and elapsed >= 312:
+            self.star = NeutronStar(self.w, 1)
+            self.second_star_used = True
+            self.streams.clear()
+
+    # ── Eingabe ─────────────────────────────────────────────────────────────
+    def handle_input(self):
+        key = self.scr.getch()
+        if key == curses.KEY_UP and self.ship.y > 1:
+            self.ship.move(dy=-1)
+        elif key == curses.KEY_DOWN and self.ship.y < self.h - 2:
+            self.ship.move(dy=1)
+        elif key == ord('q'):
+            return False
+        elif key != -1:
+            self.ship.key_buf.append(key)
+            if len(self.ship.key_buf) > 3:
+                self.ship.key_buf.pop(0)
+            if self.ship.key_buf == [ord('g'), ord('o'), ord('d')]:
+                self.ship.toggle_god()
+                self.ship.key_buf.clear()
+        return True
+
+    # ── Bewegung / Bereinigung ──────────────────────────────────────────────
+    def update_objects(self):
+        for a in self.asteroids:
+            a.move(dx=-1)
+        for p in self.pickups:
+            p.move(dx=-1)
+        for s in self.streams:
+            s.move(dy=1)
+
+        # Neutron-Star Bewegung + Stream-Spawn
+        if self.star:
+            self.star.move(dx=-1)
+            if self.star.x + len(self.star.symbol[0]) < 0:
+                self.star = None
+                self.streams.clear()
+            else:
+                for col in range(len(self.star.symbol[0])):
+                    if random.random() < 0.3:
+                        self.streams.append(Stream(self.star.x + col,
+                                                   self.star.y + len(self.star.symbol)))
+
+        # Off-Screen entfernen
+        self.asteroids = [a for a in self.asteroids
+                          if a.x + (len(a.symbol[0]) if a.h == 2 else len(a.symbol)) - 1 >= 0]
+        self.pickups   = [p for p in self.pickups if p.x + len(p.symbol) - 1 >= 0]
+        self.streams   = [s for s in self.streams if s.y < self.h]
+
+    # ── Kollisionslogik ─────────────────────────────────────────────────────
+    def check_collisions(self):
+        # Shield-Pickup
+        for p in self.pickups[:]:
+            if (p.y == self.ship.y and
+                    not (p.x + len(p.symbol) - 1 < self.ship.x or
+                         p.x > self.ship.x + len(self.ship.symbol) - 1)):
+                self.ship.shield = min(3, self.ship.shield + 1)
+                self.pickups.remove(p)
+
+        # Streams (vom Neutron-Star)
+        for s in self.streams[:]:
+            if s.y == self.ship.y and self.ship.x <= s.x < self.ship.x + len(self.ship.symbol):
+                if self.ship.shield < 3 and not self.ship.god_mode:
+                    return True
                 else:
-                    shield_level = 0
-                    streams.clear()
+                    self.ship.shield = 0
+                    self.streams.clear()
+                    break
+
+        # Asteroiden
+        for a in self.asteroids[:]:
+            rows = ([ (a.y, a.symbol) ] if a.h == 1
+                    else [ (a.y, a.symbol[0]), (a.y + 1, a.symbol[1]) ])
+            for ry, sym in rows:
+                if ry != self.ship.y:
+                    continue
+                if not (a.x + len(sym) - 1 < self.ship.x or
+                        a.x > self.ship.x + len(self.ship.symbol) - 1):
+                    if self.ship.god_mode:
+                        self.ship.shield = 3
+                        self.asteroids.remove(a)
+                    elif self.ship.shield > 0:
+                        self.ship.shield -= 1
+                        self.asteroids.remove(a)
+                    else:
+                        return True
+                    break
+        return False
+
+    # ── Rendering ───────────────────────────────────────────────────────────
+    def draw_hud(self, elapsed):
+        timer = time.strftime("%M:%S", time.gmtime(elapsed))
+        self.scr.addstr(0, self.w - len(timer) - 1, timer)
+        if self.ship.god_mode:
+            txt = "GODMODE AKTIV"
+            self.scr.addstr(1, self.w - len(txt) - 1, txt)
+
+    def draw(self, elapsed):
+        self.scr.clear()
+        self.draw_hud(elapsed)
+
+        # Entities
+        if self.star:
+            self.star.draw(self.scr)
+        for obj in self.asteroids + self.pickups + self.streams + [self.ship]:
+            obj.draw(self.scr)
+
+        # Schild-Balken
+        if self.ship.shield > 0:
+            bar = ")" * self.ship.shield
+            sx  = self.ship.x + len(self.ship.symbol) + 1
+            if sx + len(bar) < self.w:
+                self.scr.addstr(self.ship.y, sx, bar)
+
+        self.scr.refresh()
+
+    # ── Haupt-Loop ──────────────────────────────────────────────────────────
+    def run(self):
+        prev_time = time.perf_counter()
+        while True:
+            now     = time.perf_counter()
+            dt      = now - prev_time
+            prev_time = now
+            elapsed = now - self.start_time
+
+            if not self.handle_input():
+                break
+            self.spawn_shield(now)
+            self.spawn_asteroid(elapsed)
+            self.spawn_neutron_star(elapsed)
+
+            self.update_objects()
+            if self.check_collisions():
+                self.scr.addstr(self.h//2, self.w//2 - 4, "BOOM!")
+                self.scr.refresh()
+                time.sleep(1)
                 break
 
-        if hit:
-            stdscr.addstr(height//2, width//2 - 5, "BOOM!")
-            stdscr.refresh()
-            time.sleep(1)
-            return
+            self.draw(elapsed)
 
-        # Raumschiff + Schild
-        stdscr.addstr(spaceship_y, spaceship_x, SPACESHIP)
-        if shield_level > 0:
-            bar  = ")" * shield_level
-            offx = spaceship_x + len(SPACESHIP) + 1
-            if offx + len(bar) <= width:
-                stdscr.addstr(spaceship_y, offx, bar)
+            # Framerate begrenzen
+            sleep = TARGET_DT - (time.perf_counter() - now)
+            if sleep > 0:
+                time.sleep(sleep)
 
-        # Pickup-Kollision
-        for s in shield_items[:]:
-            if (s['y'] == spaceship_y and
-               not (s['x'] + len(s['symbol']) - 1 < spaceship_x
-                    or s['x'] > spaceship_x + len(SPACESHIP) - 1)):
-                shield_level = min(3, shield_level + 1)
-                shield_items.remove(s)
-
-        # Asteroiden-Kollision
-        hit = False
-        for a in asteroids:
-            rows = ([(a['y'], a['symbol'])] if a['h'] == 1
-                    else [(a['y'], a['symbol_x']), (a['y']+1, a['symbol_y'])])
-            for ry, sym in rows:
-                if ry != spaceship_y: continue
-                if not (a['x'] + len(sym) - 1 < spaceship_x
-                        or a['x'] > spaceship_x + len(SPACESHIP) - 1):
-                    if god_mode:
-                        shield_level = 3
-                        asteroids.remove(a)
-                    elif shield_level > 0:
-                        shield_level -= 1
-                        asteroids.remove(a)
-                    else:
-                        hit = True
-                    break
-            if hit: break
-
-        if hit:
-            stdscr.addstr(height//2, width//2 - 5, "BOOM!")
-            stdscr.refresh()
-            time.sleep(1)
-            return
-
-        stdscr.refresh()
-        sleep = TARGET_DT - (time.perf_counter() - now)
-        if sleep > 0:
-            time.sleep(sleep)
+# ── Einstieg ────────────────────────────────────────────────────────────────
+def main(stdscr):
+    Game(stdscr).run()
 
 if __name__ == "__main__":
     curses.wrapper(main)
