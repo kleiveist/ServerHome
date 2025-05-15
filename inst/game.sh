@@ -192,30 +192,37 @@ if check_file_exists "$SCRIPT_PATH2"; then
   cat << 'EOF' | sudo tee "$SCRIPT_PATH2" > /dev/null
 #!/usr/bin/env bash
 
-# Generate a random number between 1 and 100
+# Farben
+RED="\e[31m"; GREEN="\e[32m"; YELLOW="\e[33m"; BLUE="\e[34m"; MAGENTA="\e[35m"; RESET="\e[0m"
+
+# zufällige Zielzahl 1–100
 target=$(( RANDOM % 100 + 1 ))
 attempts=0
 
-echo "Welcome to Guess the Number!"
-echo "I have chosen a number between 1 and 100."
+# Banner
+echo -e "${MAGENTA}╔═══════════════════════════════════╗${RESET}"
+echo -e "${MAGENTA}║      🎯 Guess the Number 🎯      ║${RESET}"
+echo -e "${MAGENTA}╚═══════════════════════════════════╝${RESET}"
+echo -e "Ich habe eine Zahl zwischen ${YELLOW}1${RESET} und ${YELLOW}100${RESET} gewählt. Viel Glück!"
 
 while true; do
-  read -p "Your guess: " guess
+  echo -en "\n${BLUE}🔢 Your guess:${RESET} "
+  read guess
   (( attempts++ ))
 
-  # validate input
+  # Eingabe validieren
   if ! [[ $guess =~ ^[0-9]+$ ]]; then
-    echo "Please enter a whole number."
+    echo -e "${RED}⚠️ Bitte eine ganze Zahl eingeben!${RESET}"
     continue
   fi
 
-  # compare
+  # Vergleich
   if (( guess < target )); then
-    echo "Too low."
+    echo -e "${YELLOW}↗️ Too low!${RESET}"
   elif (( guess > target )); then
-    echo "Too high."
+    echo -e "${YELLOW}↘️ Too high!${RESET}"
   else
-    echo "Correct! You guessed it in $attempts attempts."
+    echo -e "\n${GREEN}✅ Correct! You guessed it in ${attempts} attempts.${RESET}"
     break
   fi
 done
@@ -231,28 +238,35 @@ if check_file_exists "$SCRIPT_PATH3"; then
   cat << 'EOF' | sudo tee "$SCRIPT_PATH3" > /dev/null
 #!/usr/bin/env bash
 
+# Farben
+RED="\e[31m"; GREEN="\e[32m"; YELLOW="\e[33m"; BLUE="\e[34m"; RESET="\e[0m"
+
+icons=("🪨" "📄" "✂️")
 options=("Rock" "Paper" "Scissors")
 
-echo "=== Rock, Paper, Scissors ==="
-echo "Enter 0=Rock, 1=Paper, 2=Scissors. 'q' to quit."
+# Banner
+echo -e "${BLUE}╔════════════════════════════╗${RESET}"
+echo -e "${BLUE}║   Rock, Paper, Scissors 🕹️   ║${RESET}"
+echo -e "${BLUE}╚════════════════════════════╝${RESET}"
+echo -e "Wähle: 0=${icons[0]} ${options[0]}, 1=${icons[1]} ${options[1]}, 2=${icons[2]} ${options[2]} oder 'q' zum Beenden."
 
 while true; do
-  read -p "> " choice
-  [[ $choice == "q" ]] && { echo "Game over."; break; }
+  read -p $'\n> ' choice
+  [[ $choice == "q" ]] && { echo -e "${YELLOW}Game over. 👋${RESET}"; break; }
 
   if ! [[ $choice =~ ^[0-2]$ ]]; then
-    echo "Invalid input. Use 0, 1, 2 or q."
+    echo -e "${RED}Ungültige Eingabe! ⚠️ Nutze 0,1,2 oder q.${RESET}"
     continue
   fi
 
   comp=$(( RANDOM % 3 ))
-  echo "You: ${options[$choice]} – CPU: ${options[$comp]}"
+  echo -e "\nDu: ${icons[$choice]} ${options[$choice]}  –  CPU: ${icons[$comp]} ${options[$comp]}"
 
   result=$(( (choice - comp + 3) % 3 ))
   case $result in
-    0) echo "Draw." ;;
-    1) echo "You win!" ;;
-    2) echo "CPU wins." ;;
+    0) echo -e "${YELLOW}Draw. 🤝${RESET}" ;;
+    1) echo -e "${GREEN}You win! 🎉${RESET}" ;;
+    2) echo -e "${RED}CPU wins. 💻🏆${RESET}" ;;
   esac
 done
 EOF

@@ -255,7 +255,12 @@ sudo curl -fsSL \
 && sudo chmod +x /usr/local/bin/game/spaceship.py
 ```
 
-12) Execute custom script 09.sh
+1) Run installer gamescript:
+   ```bash
+   game.sh
+   ```
+
+2) Execute custom script
    ```bash
    spaceship.py
    ```
