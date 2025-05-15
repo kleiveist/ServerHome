@@ -154,7 +154,7 @@ sudo wget -qO /usr/local/bin/install.sh \
 
 12) Execute custom script 09.sh
    ```bash
-   game.py
+   9.sh
    ```
 
 13) Execute custom script 10.sh
@@ -232,12 +232,35 @@ sudo curl -fsSL \
 && sudo chmod +x /usr/local/bin/docker.sh
 ```
 
+---
+
+
+## Installation Games
+
 ```bash
 sudo curl -fsSL \
-  https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/game.py \
-  -o /usr/local/bin/game.py \
-&& sudo chmod +x /usr/local/bin/game.py
+  https://raw.githubusercontent.com/kleiveist/ServerHome/main/inst/game.sh \
+  -o /usr/local/bin/game.sh \
+&& sudo chmod +x /usr/local/bin/game.sh
 ```
+### Using Games
+
+---
+
+```bash
+sudo curl -fsSL \
+  https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/game/spaceship.py \
+  -o /usr/local/bin/game/spaceship.py \
+&& sudo chmod +x /usr/local/bin/game/spaceship.py
+```
+
+12) Execute custom script 09.sh
+   ```bash
+   spaceship.py
+   ```
+---
+
+
 ---
 
 ## License
