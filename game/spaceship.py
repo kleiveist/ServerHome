@@ -4,8 +4,8 @@ import random
 import time
 
 SHIELD_PICKUP       = "=[)(]="   # Symbol für Shield-Pickup
-SHIELD_SPAWN_CHANCE = 0.004      # Chance pro Frame
-SHIELD_MIN_COOLDOWN = 5.0        # Mindestabstand in Sekunden
+SHIELD_SPAWN_CHANCE = 0.002      # Chance pro Frame
+SHIELD_MIN_COOLDOWN = 10.0        # Mindestabstand in Sekunden
 ASTEROID_SYMBOLSX   = ["####", "##", "#", "###", "#####"]
 ASTEROID_SYMBOLSY   = ["####", "##", "#", "###", "#####"]
 SPACESHIP           = "===>"
@@ -38,6 +38,8 @@ def main(stdscr):
     star_pos          = {'x': 0, 'y': 1}
     god_mode          = False
     key_buffer        = []
+    star_used         = False    # Stern wurde schon einmal gespawnt
+    second_star_used  = False    # zweiter Spawn-Flag
 
     TARGET_FPS = 60
     TARGET_DT  = 1.0 / TARGET_FPS
@@ -99,37 +101,47 @@ def main(stdscr):
                     'symbol': "#",
                     'h': 1
                 })
-        else:
-            # Normale Asteroiden (außer 120–150 s)
-            if not (120 <= elapsed < 150) and random.random() < 0.2:
-                hard = 60 <= elapsed < 90
-                if hard:
-                    sx = random.choice(ASTEROID_SYMBOLSX)
-                    sy = random.choice(ASTEROID_SYMBOLSY)
-                    y0 = random.randint(1, height - 3)
-                    asteroids.append({
-                        'x': width - len(sx) - 1,
-                        'y': y0,
-                        'symbol_x': sx,
-                        'symbol_y': sy,
-                        'h': 2
-                    })
-                else:
-                    s  = random.choice(ASTEROID_SYMBOLSX)
-                    y0 = random.randint(1, height - 2)
-                    asteroids.append({
-                        'x': width - len(s) - 1,
-                        'y': y0,
-                        'symbol': s,
-                        'h': 1
-                    })
 
-        # ─── Neutronenstern: nur einmal spawnen ───
+        # ─── Asteroiden spawnen ───
+        elif elapsed >= 60:
+            # ab 1:00 große Asteroiden mit 20 % Chance,
+            # ab 2:30 (150 s) 100 % (dauerhaft)
+            spawn_chance = 1.0 if elapsed >= 150 else 0.2
+            if random.random() < spawn_chance:
+                sx = random.choice(ASTEROID_SYMBOLSX)
+                sy = random.choice(ASTEROID_SYMBOLSY)
+                y0 = random.randint(1, height - 2 - (1 if elapsed >= 60 else 0))
+                asteroids.append({
+                    'x': width - len(sx) - 1,
+                    'y': y0,
+                    'symbol_x': sx,
+                    'symbol_y': sy,
+                    'h': 2
+                })
+
+        else:
+            # kleiner Asteroiden-Spawn wie gehabt
+            if random.random() < 0.2:
+                s  = random.choice(ASTEROID_SYMBOLSX)
+                y0 = random.randint(1, height - 2)
+                asteroids.append({
+                    'x': width - len(s) - 1,
+                    'y': y0,
+                    'symbol': s,
+                    'h': 1
+                })
+
+        # ─── Neutronenstern spawnen ───
         if not star_used and elapsed >= 135:
-            neutron_spawned = True
-            star_used       = True
-            star_pos['x']   = width
-            star_pos['y']   = 1
+            neutron_spawned  = True
+            star_used        = True
+            star_pos.update({'x': width, 'y': 1})
+            streams.clear()
+        # zweiter Spawn bei 3:00 (180 s)
+        if not second_star_used and elapsed >= 180:
+            neutron_spawned    = True
+            second_star_used   = True
+            star_pos.update({'x': width, 'y': 1})
             streams.clear()
         # Bewegung des Sterns
         if neutron_spawned:
