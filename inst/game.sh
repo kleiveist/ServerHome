@@ -639,18 +639,14 @@ fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
 #+----------------------------------------------------------------------------------------------------------------------------------+
 #+----------------------------------------------------------------------------------------------------------------------------------+
-# ⚙️ Execute upgrade.sh | SCRIPT_PATH3="/usr/local/bin/upgrade.sh"
-sudo chmod +x /usr/local/bin/system_vars.sh
-
 #+----------------------------------------------------------------------------------------------------------------------------------+
-# ⚙️ Set execute permissions and run systemv.sh | SCRIPT_PATH0
+# ⚙️ Run upgrade
 sleep 0.5
+log_message "🛠️ Starting system upgrade"
 if [ -f "$SCRIPT_PATH0" ]; then
-    sudo chmod +x "$SCRIPT_PATH0"
-    log_message "🔧 Execute permission set for $(basename "$SCRIPT_PATH0")."
-    sleep 1
-    log_message "🖥️ Displaying system information"
-    if sudo bash "$SCRIPT_PATH0" | tee -a /var/log/installation_script.log; then
+    sleep 0.5
+    log_message "✅ $(basename "$SCRIPT_PATH0") found. Running script."
+    if sudo bash "$SCRIPT_PATH3" | tee -a /var/log/installation_script.log; then
         log_message "🎉 $(basename "$SCRIPT_PATH0") ran successfully."
     else
         log_message "❌ Error running $(basename "$SCRIPT_PATH0")."
@@ -660,20 +656,21 @@ else
     log_message "❌ $(basename "$SCRIPT_PATH0") not found."
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
-# ⚙️ Run upgrade.sh | SCRIPT_PATH3="/usr/local/bin/upgrade.sh"
+# ⚙️ Set execute permissions and run systemv.sh | SCRIPT_PATH0
 sleep 0.5
-log_message "🛠️ Starting system upgrade"
-if [ -f "$SCRIPT_PATH3" ]; then
-    sleep 0.5
-    log_message "✅ $(basename "$SCRIPT_PATH3") found. Running script."
-    if sudo bash "$SCRIPT_PATH3" | tee -a /var/log/installation_script.log; then
-        log_message "🎉 $(basename "$SCRIPT_PATH3") ran successfully."
+if [ -f "$SCRIPT_PATH1" ]; then
+    sudo chmod +x "$SCRIPT_PATH1"
+    log_message "🔧 Execute permission set for $(basename "$SCRIPT_PATH1")."
+    sleep 1
+    log_message "🖥️ Displaying system information"
+    if sudo bash "$SCRIPT_PATH1" | tee -a /var/log/installation_script.log; then
+        log_message "🎉 $(basename "$SCRIPT_PATH1") ran successfully."
     else
-        log_message "❌ Error running $(basename "$SCRIPT_PATH3")."
+        log_message "❌ Error running $(basename "$SCRIPT_PATH1")."
         exit 1
     fi
 else
-    log_message "❌ $(basename "$SCRIPT_PATH3") not found."
+    log_message "❌ $(basename "$SCRIPT_PATH1") not found."
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
 # ⚙️ Run hosts.py | SCRIPT_PATH4="/usr/local/bin/hosts.py"
@@ -692,77 +689,3 @@ else
     log_message "❌ $(basename "$SCRIPT_PATH4") not found."
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
-# ⚙️ Run ping.py | SCRIPT_PATH5="/usr/local/bin/ping.py"
-sleep 0.5
-log_message "🛠️ Checking required connections"
-if [ -f "$SCRIPT_PATH5" ]; then
-    sleep 0.5
-    log_message "✅ $(basename "$SCRIPT_PATH5") found. Running script."
-    # Unbuffered Python output, real-time to terminal and log
-    sudo PYTHONUNBUFFERED=1 python3 "$SCRIPT_PATH5" 2>&1 | tee -a /var/log/installation_script.log
-    RET=${PIPESTATUS[0]}
-    if [ "$RET" -eq 0 ]; then
-        log_message "🎉 $(basename "$SCRIPT_PATH5") ran successfully."
-    else
-        log_message "❌ Error running $(basename "$SCRIPT_PATH5")."
-        exit 1
-    fi
-else
-    log_message "❌ $(basename "$SCRIPT_PATH5") not found."
-fi
-#+----------------------------------------------------------------------------------------------------------------------------------+
-# 🛠️ Add entry to crontab
-sleep 0.5
-log_message "🔄 Adding entry to crontab if missing."
-if ! crontab -l | grep -q '/usr/local/bin/hosts.py'; then
-  (crontab -l 2>/dev/null; echo "@reboot /usr/local/bin/hosts.py") | crontab -
-  sleep 0.5
-  log_message "🎉 Crontab entry added successfully."
-else
-  sleep 0.5
-  log_message "ℹ️ Crontab entry already exists."
-fi
-#+----------------------------------------------------------------------------------------------------------------------------------+
-# 📜 Add entry to .bashrc
-sleep 0.5
-log_message "🔄 Adding entry to ~/.bashrc if missing."
-if ! grep -q 'sudo /usr/local/bin/cat.sh' ~/.bashrc; then
-  cat << 'EOF' | tee -a ~/.bashrc > /dev/null
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# 🛠️ Auto-run scripts on SSH login
-if [ -n "$SSH_CONNECTION" ]; then  # Check if SSH connection exists
-    sudo /usr/local/bin/cat.sh  # Run cat.sh
-    if [ $? -eq 0 ]; then  # If cat.sh succeeded (exit code 0)
-        sudo /usr/local/bin/skripts.sh  # Run skripts.sh
-    else
-        echo "❌ cat.sh failed. skripts.sh will not run."
-    fi
-fi
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-EOF
-  sleep 0.5
-  log_message "🎉 Entry added to ~/.bashrc successfully."
-else
-  sleep 0.5
-  log_message "ℹ️ ~/.bashrc entry already exists."
-fi
-#+----------------------------------------------------------------------------------------------------------------------------------+
-sleep 0.5
-log_message "🛠️ Verifying URLs"
-if [ -f "$SCRIPT_PATH7" ]; then
-    sleep 0.5
-    log_message "✅ $(basename "$SCRIPT_PATH7") found. Running script."
-    if sudo bash "$SCRIPT_PATH7" | tee -a /var/log/installation_script.log; then
-        log_message "🎉 $(basename "$SCRIPT_PATH7") ran successfully."
-    else
-        log_message "❌ Error running $(basename "$SCRIPT_PATH7")."
-        exit 1
-    fi
-else
-    log_message "❌ $(basename "$SCRIPT_PATH7") not found."
-fi
-#+----------------------------------------------------------------------------------------------------------------------------------+
-# Reboot the system
-log_message "🔄 Rebooting the system."
-sleep 5
-#sudo reboot
