@@ -235,6 +235,9 @@ sudo curl -fsSL \
 ---
 
 
+---
+
+
 ## Installation Games
 
 ```bash
@@ -244,8 +247,6 @@ sudo curl -fsSL \
 && sudo chmod +x /usr/local/bin/game.sh
 ```
 ### Using Games
-
----
 
 ```bash
 sudo curl -fsSL \
