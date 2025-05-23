@@ -933,14 +933,13 @@ IP1 = get_ip("IP1")
 
 # Domains come from Bash wrapper via ENV: LOCAL_DOMAIN, GLOBAL_DOMAIN
 # Hardcoded lists:
-DOMAINS_IP1 = "$LOCAL_DOMAIN"
-DOMAINS_IP2 = "$GLOBAL_DOMAIN"
+DOMAINS_IP1 = os.getenv("LOCAL_DOMAIN", "").split()
+DOMAINS_IP2 = os.getenv("GLOBAL_DOMAIN", "").split()
 
 # Logging function
 def log(msg):
     print(f"{datetime.now():%Y-%m-%d %H:%M:%S} - {msg}")
 
-# Add entries if not present
 def add_entries(ip, domains, header):
     if not ip or not domains:
         return
@@ -1481,6 +1480,7 @@ else
     log_message "❌ $(basename "$SCRIPT_PATH7") not found."
 fi
 #+----------------------------------------------------------------------------------------------------------------------------------+
+sudo cat.sh
 # Reboot the system
 log_message "🔄 Rebooting the system."
 sleep 5
