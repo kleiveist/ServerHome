@@ -50,7 +50,7 @@ SCRIPT_PATH1="/usr/local/bin/gamelist.sh"
 SCRIPT_PATH2="/usr/local/bin/guess.sh"
 SCRIPT_PATH3="/usr/local/bin/rps.sh"
 SCRIPT_PATH4="/usr/local/bin/spaceship.py"
-SCRIPT_PATH5="/usr/local/bin/game5.sh"
+SCRIPT_PATH5="/usr/local/bin/snake.py"
 SCRIPT_PATH6="/usr/local/bin/game6.sh"
 SCRIPT_PATH7="/usr/local/bin/game7.sh"
 SCRIPT_PATH8="/usr/local/bin/game8.sh"
@@ -671,6 +671,7 @@ if check_file_exists "$SCRIPT_PATH5"; then
   sleep 0.1
   log_message "📄 Creating file: $SCRIPT_PATH5"
   cat <<EOF  | sudo tee "$SCRIPT_PATH5" > /dev/null
+#!/usr/bin/env python3
 import curses
 import random
 import time
