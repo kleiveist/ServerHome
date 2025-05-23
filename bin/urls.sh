@@ -19,7 +19,7 @@ declare -a RESULTS
 
 check_url() {
   local url="\$1"
-  if curl -k -I --silent --fail "\$url" >/dev/null; then
+  if curl -k -I --silent --fail --max-time 10 "\$url" >/dev/null; do
     mark="✅"
   else
     mark="❌"
