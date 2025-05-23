@@ -1094,13 +1094,13 @@ URLS=(
 declare -a RESULTS
 
 check_url() {
-  local url="$1"
-  if curl -k -I --silent --fail --max-time 10 "$url" >/dev/null; then
+  local url="\$1"
+  if curl -k -I --silent --fail --max-time 5 "\$url" >/dev/null; then
     mark="✅"
   else
     mark="❌"
   fi
-  RESULTS+=( "$url|$mark" )
+  RESULTS+=( "\$url|\$mark" )
 }
 
 
