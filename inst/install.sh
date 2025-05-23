@@ -932,12 +932,9 @@ def get_ip(env_var):
 IP1 = get_ip("IP1")
 
 # Domains come from Bash wrapper via ENV: LOCAL_DOMAIN, GLOBAL_DOMAIN
-# Fallback to domain.local and domain.global if unset
-local = os.getenv("LOCAL_DOMAIN", "domain.local")
-global_dom = os.getenv("GLOBAL_DOMAIN", "domain.global")
 # Hardcoded lists:
-DOMAINS_IP1 = ["book.local"]
-DOMAINS_IP2 = ["book.com"]
+DOMAINS_IP1 = "$LOCAL_DOMAIN"
+DOMAINS_IP2 = "$GLOBAL_DOMAIN"
 
 # Logging function
 def log(msg):
