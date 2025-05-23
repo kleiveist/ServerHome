@@ -17,7 +17,7 @@ UBUNTU_CODENAME="$(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENA
 DOCKER_REPO="deb [arch=$(dpkg --print-architecture) signed-by=${KEYRING_FILE}] \
   https://download.docker.com/linux/ubuntu ${UBUNTU_CODENAME} stable"
 
-COMPOSE_APT_PKG="docker-compose-plugin"
+COMPOSE_APT_PKG="docker-compose"
 COMPOSE_BIN="/usr/local/bin/docker-compose"
 COMPOSE_FALLBACK_URL="https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)"
 
@@ -65,6 +65,7 @@ else
   log "Installing Docker Compose plugin via apt..."
   sudo apt-get update
   sudo apt-get install -y ${COMPOSE_APT_PKG}
+
 
   if docker compose version &> /dev/null; then
     log "Successfully installed $(docker compose version)"
