@@ -51,7 +51,7 @@ SCRIPT_PATH1="/usr/local/bin/skripts.sh"
 SCRIPT_PATH2="/usr/local/bin/help.sh"
 # 📜 Help – script paths 📝 💾 📂 🛠️
 SCRIPT_PATH3="/usr/local/bin/upgrade.sh"
-SCRIPT_PATH4="/usr/local/bin/"
+SCRIPT_PATH4="/usr/local/bin/hosts.py"
 SCRIPT_PATH5="/usr/local/bin/ping.py"
 SCRIPT_PATH6="/usr/local/bin/cat.sh"
 SCRIPT_PATH7="/usr/local/bin/urls.sh"
@@ -953,7 +953,7 @@ def add_entries(ip, domains, header):
 
 if __name__ == "__main__":
     if os.geteuid() != 0:
-        print("This script must be run as root!")
+        print("Dieses Skript muss als Root laufen!")
         exit(1)
     add_entries(IP1, DOMAINS_IP1,  "#====== LOCAL_DOMAIN ======")
     add_entries(IP1, DOMAINS_IP2, "#====== GLOBAL_DOMAIN ======")
