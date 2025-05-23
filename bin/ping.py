@@ -28,8 +28,8 @@ HOSTS = {
     f"{PREFIX}.1": "RouterHome",
     f"{PREFIX}.4": "Pi-hole DNS",
     f"{PREFIX}.5": "VPN Server",
-    "$LOCAL_DOMAIN": "book-domain1",
-    "$GLOBAL_DOMAIN": "book-domain2",
+    "$LOCAL_DOMAIN": "domain1",
+    "$GLOBAL_DOMAIN": "domain2",
 }
 
 def ping_host(host):

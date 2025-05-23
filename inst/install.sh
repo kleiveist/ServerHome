@@ -51,7 +51,7 @@ SCRIPT_PATH1="/usr/local/bin/skripts.sh"
 SCRIPT_PATH2="/usr/local/bin/help.sh"
 # 📜 Help – script paths 📝 💾 📂 🛠️
 SCRIPT_PATH3="/usr/local/bin/upgrade.sh"
-SCRIPT_PATH4="/usr/local/bin/hosts.py"
+SCRIPT_PATH4="/usr/local/bin/"
 SCRIPT_PATH5="/usr/local/bin/ping.py"
 SCRIPT_PATH6="/usr/local/bin/cat.sh"
 SCRIPT_PATH7="/usr/local/bin/urls.sh"
@@ -933,8 +933,8 @@ IP1 = get_ip("IP1")
 
 # Domains come from Bash wrapper via ENV: LOCAL_DOMAIN, GLOBAL_DOMAIN
 # Hardcoded lists:
-DOMAINS_IP1 = os.getenv("LOCAL_DOMAIN", "").split()
-DOMAINS_IP2 = os.getenv("GLOBAL_DOMAIN", "").split()
+DOMAINS_IP1 = os.getenv("$LOCAL_DOMAIN", "").split()
+DOMAINS_IP2 = os.getenv("$GLOBAL_DOMAIN", "").split()
 
 # Logging function
 def log(msg):
@@ -1001,8 +1001,8 @@ HOSTS = {
     f"{PREFIX}.1": "RouterHome",
     f"{PREFIX}.4": "Pi-hole DNS",
     f"{PREFIX}.5": "VPN Server",
-    "$LOCAL_DOMAIN": "book-domain1",
-    "$GLOBAL_DOMAIN": "book-domain2",
+    "$LOCAL_DOMAIN": "domain1",
+    "$GLOBAL_DOMAIN": "domain2",
 }
 
 def ping_host(host):
