@@ -18,13 +18,13 @@ URLS=(
 declare -a RESULTS
 
 check_url() {
-  local url="\$1"
-  if curl -k -I --silent --fail --max-time 10 "\$url" >/dev/null; do
+  local url="$1"
+  if curl -k -I --silent --fail --max-time 10 "$url" >/dev/null; then
     mark="✅"
   else
     mark="❌"
   fi
-  RESULTS+=( "\$url|\$mark" )
+  RESULTS+=( "$url|$mark" )
 }
 
 # Literal loop: dollar signs are escaped, evaluated in the script
