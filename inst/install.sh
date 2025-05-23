@@ -953,7 +953,7 @@ def add_entries(ip, domains, header):
 
 if __name__ == "__main__":
     if os.geteuid() != 0:
-        print("Dieses Skript muss als Root laufen!")
+        print("This script must be run as root!")
         exit(1)
     add_entries(IP1, DOMAINS_IP1,  "#====== LOCAL_DOMAIN ======")
     add_entries(IP1, DOMAINS_IP2, "#====== GLOBAL_DOMAIN ======")
