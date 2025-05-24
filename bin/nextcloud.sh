@@ -55,7 +55,7 @@ echo "  DB Root-Passwort: $DB_ROOT_PASS"
 echo "  DB User-Passwort: $DB_PASS"
 
 # --- Docker-Compose-Datei schreiben ---
-# --- Docker-Compose-Datei schreiben ---
+
 cat > "$COMPOSE_FILE" <<EOF
 services:
   db:
@@ -78,12 +78,13 @@ services:
     expose:
       - 80
     environment:
-      MYSQL_HOST: db
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: "${DB_PASS}"
-      NEXTCLOUD_ADMIN_USER: ${ADMIN_USER}
+      MYSQL_HOST:       db
+      MYSQL_DATABASE:   ${DB_NAME}
+      MYSQL_USER:       ${DB_USER}
+      MYSQL_PASSWORD:   "${DB_PASS}"
+      NEXTCLOUD_ADMIN_USER:     ${ADMIN_USER}
       NEXTCLOUD_ADMIN_PASSWORD: "${ADMIN_PASS}"
+      NEXTCLOUD_TRUSTED_DOMAINS: "localhost,${SERVER_IP}"
     volumes:
       - ${DATA_DIR}:/var/www/html/data
       - nextcloud_config:/var/www/html/config
