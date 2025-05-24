@@ -55,9 +55,8 @@ echo "  DB Root-Passwort: $DB_ROOT_PASS"
 echo "  DB User-Passwort: $DB_PASS"
 
 # --- Docker-Compose-Datei schreiben ---
+# --- Docker-Compose-Datei schreiben ---
 cat > "$COMPOSE_FILE" <<EOF
-version: '3.8'
-
 services:
   db:
     image: mariadb:10.11
@@ -65,10 +64,10 @@ services:
     restart: always
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     environment:
-      MYSQL_ROOT_PASSWORD: \${DB_ROOT_PASS}
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASS}"
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: \${DB_PASS}
+      MYSQL_PASSWORD: "${DB_PASS}"
     volumes:
       - db_data:/var/lib/mysql
 
@@ -82,9 +81,9 @@ services:
       MYSQL_HOST: db
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: \${DB_PASS}
+      MYSQL_PASSWORD: "${DB_PASS}"
       NEXTCLOUD_ADMIN_USER: ${ADMIN_USER}
-      NEXTCLOUD_ADMIN_PASSWORD: \${ADMIN_PASS}
+      NEXTCLOUD_ADMIN_PASSWORD: "${ADMIN_PASS}"
     volumes:
       - ${DATA_DIR}:/var/www/html/data
       - nextcloud_config:/var/www/html/config
