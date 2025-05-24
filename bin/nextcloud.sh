@@ -135,10 +135,19 @@ until docker exec nextcloud-db mysqladmin ping -h "localhost" -p"${DB_ROOT_PASS}
 done
 echo "Datenbank ist bereit."
 
+# --- Nextcloud installieren ---
+docker exec --user www-data nextcloud-app php occ maintenance:install \
+  --database "mysql" \
+  --database-name "${DB_NAME}" \
+  --database-user "${DB_USER}" \
+  --database-pass "${DB_PASS}" \
+  --database-host "db" \
+  --admin-user "${ADMIN_USER}" \
+  --admin-pass "${ADMIN_PASS}"
+
 # --- Trusted Domains konfigurieren ---
 docker exec --user www-data nextcloud-app php occ config:system:set trusted_domains 0 --value=localhost
 docker exec --user www-data nextcloud-app php occ config:system:set trusted_domains 1 --value="${SERVER_IP}"
-
 
 echo "🔧 Caddy-Proxy konfiguriert für https://$SERVER_IP"
 
