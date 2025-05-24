@@ -136,8 +136,9 @@ done
 echo "Datenbank ist bereit."
 
 # --- Trusted Domains konfigurieren ---
-docker exec nextcloud-app bash -c "php occ config:system:set trusted_domains 0 --value=localhost"
-docker exec nextcloud-app bash -c "php occ config:system:set trusted_domains 1 --value=\"${SERVER_IP}\""
+docker exec --user www-data nextcloud-app php occ config:system:set trusted_domains 0 --value=localhost
+docker exec --user www-data nextcloud-app php occ config:system:set trusted_domains 1 --value="${SERVER_IP}"
+
 
 echo "🔧 Caddy-Proxy konfiguriert für https://$SERVER_IP"
 

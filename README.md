@@ -135,18 +135,6 @@ sudo wget -qO /usr/local/bin/install.sh \
 
 ---
 
-### Using curl
-
-```bash
-sudo curl -fsSL \
-    https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/nextcloud.sh \
-    -o /usr/local/bin/nextcloud.sh; then
-  sudo chmod +x /usr/local/bin/nextcloud.sh
-```
-
----
-
-
 ---
 
 
@@ -159,9 +147,7 @@ sudo curl -fsSL \
 && sudo chmod +x /usr/local/bin/game.sh
 ```
 
-```bash
-  sudo nextcloud.sh
-```
+
 
 ### Using Games
 
@@ -183,6 +169,20 @@ sudo curl -fsSL \
 ```
 ---
 
+---
+
+### ## Installation nextcloud
+
+```bash
+sudo curl -fsSL \
+  https://raw.githubusercontent.com/kleiveist/ServerHome/main/bin/nextcloud.sh \
+  -o /usr/local/bin/nextcloud.sh \
+&& sudo chmod +x /usr/local/bin/nextcloud.sh
+```
+```bash
+  sudo nextcloud.sh
+```
+---
 
 ---
 
